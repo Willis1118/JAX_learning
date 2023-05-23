@@ -50,3 +50,8 @@ print(repr(vmap_result))
 ##### Optimize with pmap #####
 pmap_result = jax.pmap(convolve)(ws, xs)
 print(repr(pmap_result)) # this now running on multiple devices by sharding the batched data
+# notice that this has no cross-device communication costs; Computations are done independently
+
+# Or we can also do this
+res = jax.pmap(convolve, in_axes=(None, 0))(w, xs)
+print(repr(res))
