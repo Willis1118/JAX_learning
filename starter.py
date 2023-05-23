@@ -40,4 +40,5 @@ print(f"Number of availabe devices: {n_devices}")
 xs = np.arange(5 * n_devices).reshape(-1, 5) # --> -1 is inferred to be n_devices
 ws = np.stack([w] * n_devices)
 
+print(xs)
 print(xs.shape, ws.shape)
