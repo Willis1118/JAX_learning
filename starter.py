@@ -18,8 +18,6 @@ from copy import deepcopy
 from typing import Tuple, NamedTuple
 import functools
 
-print(jax.devices())
-
 ##### Parallelism in JAX #####
 
 x = np.arange(5) #signal
@@ -36,3 +34,10 @@ def convolve(w, x):
 result = convolve(w, x)
 print(repr(result)) # return the canonical representation of the object
 
+n_devices = jax.local_device_count()
+print(f"Number of availabe devices: {n_devices}")
+
+xs = np.arange(5 * n_devices).reshape(-1, 5) # --> -1 is inferred to be n_devices
+ws = np.stack([w] * n_devices)
+
+print(xs.shape, ws.shape)
