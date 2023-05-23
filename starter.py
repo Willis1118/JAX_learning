@@ -44,9 +44,9 @@ print(xs)
 print(xs.shape, ws.shape)
 
 ##### Firstly optimize with vmap #####
-vmap_result = jax.vmap(convolve)(w, x) # remember that this broadcast the action on the first dimension by defualt
+vmap_result = jax.vmap(convolve)(ws, xs) # remember that this broadcast the action on the first dimension by defualt
 print(repr(vmap_result))
 
 ##### Optimize with pmap #####
-pmap_result = jax.pmap(convolve)(w, x)
+pmap_result = jax.pmap(convolve)(ws, xs)
 print(repr(pmap_result)) # this now running on multiple devices by sharding the batched data
