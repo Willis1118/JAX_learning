@@ -98,7 +98,7 @@ print(xp.shape, yp.shape)
 def type_after_update(name, obj):
     print(f"after first `update()`, `{name}` is a {type(obj)}")
 
-num_epochs = 1000
+num_epochs = 5000
 for epoch in range(num_epochs):
 
     # where params and data gets communicated to devices
