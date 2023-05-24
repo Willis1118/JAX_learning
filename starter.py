@@ -94,4 +94,4 @@ print(jax.value_and_grad(mle)(x,y))
 def g(x,y):
     return sum(x*y), x-y
 
-print(jax,grad(g, has_aux=True)(x,y))
+print(grad(g, has_aux=True)(x,y)) # --> only first will be the gradient
