@@ -87,4 +87,11 @@ x = jnp.arange(4, dtype=jnp.float32)
 y = x+1
 
 # An efficient way to return both grad and loss value
+# returning (loss, grad)
 print(jax.value_and_grad(mle)(x,y))
+
+# it's also feasible to grad on a function with more than one output
+def g(x,y):
+    return x*y, x-y
+
+print(jax,grad(g, has_aux=True)(x,y))
