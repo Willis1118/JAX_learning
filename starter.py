@@ -83,7 +83,7 @@ print('verify the distributed result', vmap_result[0][0] / sum(vmap_result[:,0])
 ##### A couple more useful functions #####
 def mle(x, y):
     return sum((x-y)**2)
-x = jnp.arange(4, dtype=jnp.floar32)
+x = jnp.arange(4, dtype=jnp.float32)
 y = x+1
 
 # An efficient way to return both grad and loss value
