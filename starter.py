@@ -78,6 +78,6 @@ print('pmap norm', res_pmap)
 print('vmap norm', res_vmap)
 
 print('verify that conv is indeed normalized', repr(sum(res_pmap[:,0])))
-print('verify the distributed result', vmap_result[0][0] / sum(vmap_result[:,0], res_vmap[0][0]))
+print('verify the distributed result', vmap_result[0][0] / sum(vmap_result[:,0]), res_vmap[0][0])
 
 # assert res_vmap[0][0] == vmap_result[0][0] / sum(vmap_result[:,0])
