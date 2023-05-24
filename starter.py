@@ -76,3 +76,5 @@ res_vmap = jax.vmap(normalize_conv, axis_name='batch_dim', in_axes=(None, 0))(w,
 
 print('pmap norm', res_pmap)
 print('vmap norm', res_vmap)
+
+print('verify that conv is indeed normalized', repr(sum(res_pmap[:,0])))
