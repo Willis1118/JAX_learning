@@ -50,7 +50,7 @@ xs = np.random.normal(size=(128,1))
 noise = 0.5*np.random.normal(size=(128,1))
 ys = true_w * xs + true_b + noise
 
-params = init_model(jax.random.PRNGkey(0))
+params = init_model(jax.random.PRNGKey(0))
 n_devices = jax.local_device_count()
 replicated_params = jax.tree_map(lambda x: jnp.array([x] * n_devices), params) # --> sending params to all local devices
 print(replicated_params)
