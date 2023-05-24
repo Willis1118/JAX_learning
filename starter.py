@@ -53,5 +53,26 @@ print(repr(pmap_result)) # this now running on multiple devices by sharding the 
 # notice that this has no cross-device communication costs; Computations are done independently
 
 # Or we can also do this
+# None is telling pmap to broadcast w to first dimension of xs
 res = jax.pmap(convolve, in_axes=(None, 0))(w, xs)
 print(repr(res))
+
+# To communicate cross devices
+def normalize_conv(w, x):
+    output = []
+
+    for i in range(1, len(x) - 1):
+        output.append(jnp.dot(x[i-1:i+2], w))
+    
+    output = jnp.array(output)
+
+    return output / jax.lax.psum(output, axis_name='batch_dim') 
+    # here lax.psum allows as to sum up along the batch dimension over all devices 
+    # and broadcast the result to each device to perform the division
+    # it can be arbitrary as long as it matches the broadcasted name & axies specified in pmap
+
+res_pmap = jax.pmap(normalize_conv, axis_name='batch_dim', in_axes=(None, 0))(w, xs) # the name 'batch_dim' referring to first axes of x
+res_vmap = jax.vmap(normalize_conv, axis_name='batch_dim', in_axes=(None, 0))(w, xs)
+
+print('pmap norm', res_pmap)
+print('vmap norm', res_vmap)
