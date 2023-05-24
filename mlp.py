@@ -54,3 +54,16 @@ params = init_model(jax.random.PRNGKey(0))
 n_devices = jax.local_device_count()
 replicated_params = jax.tree_map(lambda x: jnp.array([x] * n_devices), params) # --> sending params to all local devices
 print(replicated_params)
+
+def reshape_for_pmap(data, n_devices):
+    '''
+        sharding the data to distributed devices
+        input: data:[batch, size]
+        output: shardedData: [devices, minibatch, size]
+    '''
+    return data.reshape(n_devices, data.shape[0] // n_devices, *data.shape[1:])
+
+xp = reshape_for_pmap(xs, n_devices)
+yp = reshape_for_pmap(ys, n_devices)
+
+print(xp.shape, yp.shape)
