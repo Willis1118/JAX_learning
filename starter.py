@@ -92,6 +92,6 @@ print(jax.value_and_grad(mle)(x,y))
 
 # it's also feasible to grad on a function with more than one output
 def g(x,y):
-    return x*y, x-y
+    return sum(x*y), x-y
 
 print(jax,grad(g, has_aux=True)(x,y))
