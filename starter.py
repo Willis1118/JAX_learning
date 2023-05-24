@@ -80,4 +80,11 @@ print('vmap norm', res_vmap)
 print('verify that conv is indeed normalized', repr(sum(res_pmap[:,0])))
 print('verify the distributed result', vmap_result[0][0] / sum(vmap_result[:,0]), res_vmap[0][0])
 
-# assert res_vmap[0][0] == vmap_result[0][0] / sum(vmap_result[:,0])
+##### A couple more useful functions #####
+def mle(x, y):
+    return sum((x-y)**2)
+x = jnp.arange(4, dtype=jnp.floar32)
+y = x+1
+
+# An efficient way to return both grad and loss value
+print(jax.value_and_grad(mle)(x,y))
