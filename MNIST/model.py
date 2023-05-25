@@ -77,6 +77,15 @@ def update(params, imgs, labels, lr):
         grads
     )
 
+def accuracy(params, loader):
+
+    corr = 0
+    for img, label in loader:
+        pred = jnp.argmax(forward(params, img), axis=1) # yield 
+        corr += np.sum(pred == label)
+
+    return corr / (len(loader) * 128)
+
 dummy = np.random.randn(784)
 pred = MLP_predict(MLP_params, dummy)
 print('single data pred', pred, pred.shape)

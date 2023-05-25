@@ -4,7 +4,7 @@ import jax
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 
-from model import init_MLP, update
+from model import init_MLP, update, accuracy
 
 def to_flatten_nparr(x):
     '''
@@ -21,8 +21,6 @@ def collate_fn(data):
     # zip ((,),(,),(,)...) will take the first and second element in every tuple and zip into a tuple of two lists
     transposed_data = list(zip(*data))
 
-    print(transposed_data)
-
     images, labels = np.stack(transposed_data[0]), np.array(transposed_data[1])
 
     return images, labels
@@ -36,6 +34,15 @@ train_loader = DataLoader(
     batch_size=batch_size,
     shuffle=True,
     collate_fn=collate_fn,
+    drop_last=True
+)
+
+test_loader = DataLoader(
+    test_dataset,
+    batch_size=batch_size,
+    shuffle=False,
+    collate_fn=collate_fn,
+    drop_last=True
 )
 
 img, label = next(iter(train_loader))
@@ -43,18 +50,28 @@ img, label = next(iter(train_loader))
 assert img.shape == (128, 784)
 assert label.shape == (128,)
 
-seed = 0
+seed = 42
 key = jax.random.PRNGKey(seed)
 MLP_params = init_MLP([784, 512, 256, 10], key)
 lr = 1e-4
 
 epochs = 10
+train_steps = 0
+log_every = 100
+test_every = 500
 
 for epoch in range(epochs):
     for imgs, labels in train_loader:
         gt_labels = jax.nn.one_hot(labels, len(MNIST.classes))
-        print(gt_labels.shape)
         loss, MLP_params = update(MLP_params, imgs, gt_labels, lr)
-        print(loss)
-        break
+
+        if train_steps % log_every == 0 and train_steps > 0:
+            print(f"Epoch: {epoch}, Steps: {train_steps}, Loss: {loss}")
+        
+        if train_steps % test_every == 0 and train_steps > 0:
+            acc = accuracy(MLP_params, test_loader)
+            print(f"Epoch: {epoch}, Steps: {train_steps}, Acc: {acc}")
+        
+        train_steps += 1
+
     break
