@@ -80,5 +80,5 @@ for epoch in range(epochs):
         
         train_steps += 1
     
-    print(f"Epoch: {epoch}, Avg Loss: {avg_loss / len(train_loader)}, Avg Acc: {avg_acc / len(train_loader) * test_every}")
+    print(f"Epoch: {epoch}, Avg Loss: {avg_loss / train_steps}, Avg Acc: {avg_acc / train_steps * test_every}")
 
