@@ -20,6 +20,6 @@ train_lodaer = DataLoader(
     train_dataset,
     batch_size=batch_size,
     shuffle=True,
-    collate_fn=None,
+    collate_fn=collate_fn,
 )
 
