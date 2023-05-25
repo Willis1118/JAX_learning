@@ -9,6 +9,5 @@ def to_nparr(x):
     return np.array(x, dtype=np.float32)
 
 train_dataset = MNIST(root='train_mnist', train=True, download=True, transform=to_nparr)
-data, label = train_dataset[0]
-print(data, label)
+test_dataset = MNIST(root='test_mnist', train=False, download=True, transform=to_nparr)
 
