@@ -16,10 +16,11 @@ batch_size = 128
 train_dataset = MNIST(root='train_mnist', train=True, download=True, transform=to_flatten_nparr)
 test_dataset = MNIST(root='test_mnist', train=False, download=True, transform=to_flatten_nparr)
 
-train_lodaer = DataLoader(
+train_loader = DataLoader(
     train_dataset,
     batch_size=batch_size,
     shuffle=True,
     collate_fn=collate_fn,
 )
 
+batch_data = next(iter(train_loader))
