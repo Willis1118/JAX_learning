@@ -46,14 +46,15 @@ assert label.shape == (128,)
 seed = 0
 key = jax.random.PRNGKey(seed)
 MLP_params = init_MLP([784, 512, 256, 10], key)
+lr = 1e-4
 
 epochs = 10
 
 for epoch in range(epochs):
     for imgs, labels in train_loader:
-        gt_labels = jax.nn.one_hot(labels, MNIST.classes)
+        gt_labels = jax.nn.one_hot(labels, len(MNIST.classes))
         print(gt_labels.shape)
-        MLP_params = update(MLP_params, imgs, gt_labels)
+        MLP_params = update(MLP_params, imgs, gt_labels, lr)
         print(MLP_params)
         break
     break
