@@ -59,6 +59,24 @@ def MLP_predict(params: list, x: np.ndarray):
     # a softmax probability
     return logits - logsumexp(logits)
 
+def forward(params, x):
+    return jax.vmap(MLP_predict, in_axes=(None, 0))(params, x)
+
+def criterion(params: list, imgs: np.ndarray, labels: np.ndarray):
+    pred = forward(params, imgs)
+
+    return -jnp.mean(pred * labels) # --> with one hot representation, this will produce the log softmax for the ground truth label
+
+def update(params, imgs, labels, lr):
+    grads = jax.grad(criterion)(params, imgs, labels)
+
+    # SGD update
+    return jax.tree_map(
+        lambda p, g: p - lr*g,
+        params, 
+        grads
+    )
+
 dummy = np.random.randn(784)
 pred = MLP_predict(MLP_params, dummy)
 print('single data pred', pred, pred.shape)

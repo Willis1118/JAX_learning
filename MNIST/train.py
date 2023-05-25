@@ -1,7 +1,10 @@
 import numpy as np
+import jax
 
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
+
+from model import init_MLP, update
 
 def to_flatten_nparr(x):
     '''
@@ -36,7 +39,21 @@ train_loader = DataLoader(
 )
 
 img, label = next(iter(train_loader))
-print(label.shape)
 
 assert img.shape == (128, 784)
 assert label.shape == (128,)
+
+seed = 0
+key = jax.random.PRNGKey(seed)
+MLP_params = init_MLP([784, 512, 256, 10], key)
+
+epochs = 10
+
+for epoch in range(epochs):
+    for imgs, labels in train_loader:
+        gt_labels = jax.nn.one_hot(labels, MNIST.classes)
+        print(gt_labels.shape)
+        MLP_params = update(MLP_params, imgs, gt_labels)
+        print(MLP_params)
+        break
+    break
