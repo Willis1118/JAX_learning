@@ -59,5 +59,5 @@ def MLP_predict(params, x):
     # a softmax probability
     return logits - logsumexp(logits)
 
-dummy = np.random.randn((784,))
+dummy = np.random.randn(784)
 pred = MLP_predict(MLP_params, dummy)
