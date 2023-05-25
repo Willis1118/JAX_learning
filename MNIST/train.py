@@ -71,14 +71,9 @@ for epoch in range(epochs):
         avg_loss += loss
 
         if train_steps % log_every == 0 and train_steps > 0:
-            print(f"Epoch: {epoch}, Steps: {train_steps}, Loss: {loss}")
-        
-        if train_steps % test_every == 0 and train_steps > 0:
-            acc = accuracy(MLP_params, test_loader)
-            avg_acc += acc
-            print(f"Epoch: {epoch}, Steps: {train_steps}, Acc: {acc}")
+            print(f"Epoch: {epoch}, Steps: {train_steps}, Loss: {loss:4f}")
         
         train_steps += 1
     
-    print(f"Epoch: {epoch}, Avg Loss: {avg_loss / train_steps}, Avg Acc: {avg_acc / train_steps * test_every}")
+    print(f"Epoch: {epoch}, Avg Loss: {(avg_loss / train_steps):4f}, Train Acc: {accuracy(MLP_params, train_loader):4f}, Test Acc: {accuracy(MLP_params, test_loader):4f}")
 
