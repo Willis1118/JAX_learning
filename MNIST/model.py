@@ -78,6 +78,7 @@ def update(params, imgs, labels, lr):
         grads
     )
 
+@jax.jit
 def accuracy(params, loader):
 
     corr = 0
