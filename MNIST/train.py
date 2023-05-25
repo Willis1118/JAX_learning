@@ -53,7 +53,7 @@ assert label.shape == (128,)
 seed = 42
 key = jax.random.PRNGKey(seed)
 MLP_params = init_MLP([784, 512, 256, 10], key)
-lr = 1e-3
+lr = 1e-2
 
 epochs = 10
 train_steps = 0
