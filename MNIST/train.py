@@ -11,8 +11,8 @@ def to_flatten_nparr(x):
 
 def collate_fn(data):
     print(type(data))
-    print(data[0].shape)
-    print(data[1].shape)
+    print(data[0])
+    # print(data[1].shape)
 
 batch_size = 128
 train_dataset = MNIST(root='train_mnist', train=True, download=True, transform=to_flatten_nparr)
