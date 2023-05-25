@@ -31,3 +31,8 @@ def init_MLP(layer_widths: list, par_key, scale=0.001):
     ))
 
     return params
+
+seed = 0
+
+key = jax.random.PRNGKey(seed)
+MLP_params = init_MLP([784, 512, 256, 10], key)
