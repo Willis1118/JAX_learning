@@ -6,6 +6,8 @@ import jax
 import jax.numpy as jnp
 from jax.scipy.special import logsumexp
 
+from torchvision.datasets import MNIST
+
 def init_MLP(layer_widths: list, par_key, scale=0.001): 
     '''
         Initialize MLP weight on normal distribution
@@ -39,7 +41,7 @@ seed = 0
 key = jax.random.PRNGKey(seed)
 MLP_params = init_MLP([784, 512, 256, 10], key)
 
-def MLP_predict(params, x):
+def MLP_predict(params: list, x: np.ndarray):
     '''
         forward run of MLP
         input:
@@ -61,9 +63,9 @@ def MLP_predict(params, x):
 
 dummy = np.random.randn(784)
 pred = MLP_predict(MLP_params, dummy)
-print('single data pred', pred)
+print('single data pred', pred, pred.shape)
 
 batched_MLP_pred = jax.vmap(MLP_predict, in_axes=(None, 0))
 batch_dummy = np.random.randn(16, 784)
 pred = batched_MLP_pred(MLP_params, batch_dummy)
-print('batched data pred', pred)
+print('batched data pred', pred, pred.shape)
