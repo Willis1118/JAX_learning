@@ -3,6 +3,8 @@
 '''
 import numpy as np
 import jax
+import jax.numpy as jnp
+from jax.scipy.special import logsumexp
 
 def init_MLP(layer_widths: list, par_key, scale=0.001): 
     '''
@@ -36,3 +38,26 @@ seed = 0
 
 key = jax.random.PRNGKey(seed)
 MLP_params = init_MLP([784, 512, 256, 10], key)
+
+def MLP_predict(params, x):
+    '''
+        forward run of MLP
+        input:
+            params: parameter of the MLP
+            x: data
+        output:
+            forward result
+    '''
+    hidden_layer, last_layer = params[:-1], params[-1]
+
+    for w, b in hidden_layer:
+        x = jax.nn.relu(jnp.dot(w, x) + b)
+    
+    logits = jnp.dot(last_layer[0], x) + last_layer[1]
+
+    # log(exp(o1) / sum(exp(o1), exp(o2),...))
+    # a softmax probability
+    return logits - logsumexp(logits)
+
+dummy = np.random.randn(np.prod(28, 28))
+pred = MLP_predict(MLP_params, dummy)
