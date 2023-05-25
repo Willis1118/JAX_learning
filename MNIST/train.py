@@ -58,12 +58,13 @@ lr = 1e-2
 epochs = 10
 train_steps = 0
 log_every = 100
-test_every = 500
 
 avg_loss = 0
 avg_acc = 0
 
 for epoch in range(epochs):
+    avg_loss = 0
+
     for imgs, labels in train_loader:
         gt_labels = jax.nn.one_hot(labels, len(MNIST.classes))
         loss, MLP_params = update(MLP_params, imgs, gt_labels, lr)
@@ -75,5 +76,5 @@ for epoch in range(epochs):
         
         train_steps += 1
     
-    print(f"Epoch: {epoch}, Avg Loss: {(avg_loss / train_steps):4f}, Train Acc: {accuracy(MLP_params, train_loader):4f}, Test Acc: {accuracy(MLP_params, test_loader):4f}")
+    print(f"Epoch: {epoch}, Avg Loss: {(avg_loss / len(train_loader)):4f}, Train Acc: {accuracy(MLP_params, train_loader):4f}, Test Acc: {accuracy(MLP_params, test_loader):4f}")
 

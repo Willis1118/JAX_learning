@@ -67,6 +67,7 @@ def criterion(params: list, imgs: np.ndarray, labels: np.ndarray):
 
     return -jnp.mean(pred * labels) # --> with one hot representation, this will produce the log softmax for the ground truth label
 
+@jax.jit
 def update(params, imgs, labels, lr):
     loss, grads = jax.value_and_grad(criterion)(params, imgs, labels)
 
