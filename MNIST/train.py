@@ -52,7 +52,8 @@ assert label.shape == (128,)
 
 seed = 42
 key = jax.random.PRNGKey(seed)
-MLP_params = init_MLP([784, 512, 256, 10], key)
+image_size = [28, 28]
+MLP_params = init_MLP([np.prod(image_size), 512, 256, len(MNIST.classes)], key)
 lr = 1e-2
 
 epochs = 20
