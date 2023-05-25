@@ -55,7 +55,7 @@ key = jax.random.PRNGKey(seed)
 MLP_params = init_MLP([784, 512, 256, 10], key)
 lr = 1e-2
 
-epochs = 10
+epochs = 20
 train_steps = 0
 log_every = 100
 
