@@ -39,4 +39,4 @@ img, label = next(iter(train_loader))
 print(label.shape)
 
 assert img.shape == (128, 784)
-assert label.shape == (128, 1)
+assert label.shape == (128,)
