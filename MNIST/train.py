@@ -13,6 +13,9 @@ def collate_fn(data):
     '''
         input: data -> [(image, label)] * batch_size
     '''
+
+    # will turn [(image, lable)] --> ([images], [labels])
+    # zip ((,),(,),(,)...) will take the first and second element in every tuple and zip into a tuple of two lists
     transposed_data = list(zip(*data))
 
     print(transposed_data)
@@ -32,4 +35,7 @@ train_loader = DataLoader(
     collate_fn=collate_fn,
 )
 
-batch_data = next(iter(train_loader))
+img, label = next(iter(train_loader))
+
+assert img.shape == (128, 784)
+assert label.shape == (128, 1)
