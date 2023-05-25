@@ -74,4 +74,3 @@ for epoch in range(epochs):
         
         train_steps += 1
 
-    break
