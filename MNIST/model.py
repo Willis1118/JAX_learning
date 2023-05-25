@@ -61,3 +61,9 @@ def MLP_predict(params, x):
 
 dummy = np.random.randn(784)
 pred = MLP_predict(MLP_params, dummy)
+print('single data pred', pred)
+
+batched_MLP_pred = jax.vmap(MLP_predict, in_axes=(None, 0))
+batch_dummy = np.random.randn(16, 784)
+pred = batched_MLP_pred(MLP_params, batch_dummy)
+print('batched data pred', pred)
