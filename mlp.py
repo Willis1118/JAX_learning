@@ -116,3 +116,13 @@ for epoch in range(num_epochs):
 # extract the params from distributed to a single device
 # device_get will extract data from TPU and fetch into host memory
 params = jax.device_get(jax.tree_map(lambda x: x[0], replicated_params))
+
+##### For stopping gradient #####
+'''
+    using jax.lax.stop_gradient --> to stop grad propogation and treat the variable as identity
+    will still return the value of argument unchanged
+'''
+
+'''
+    Also, vmap allows us to calculate per example gradient without expensive overhead in for loop
+'''
