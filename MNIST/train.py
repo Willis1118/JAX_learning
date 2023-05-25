@@ -10,9 +10,16 @@ def to_flatten_nparr(x):
     return np.ravel(np.array(x, dtype=np.float32))
 
 def collate_fn(data):
-    print(type(data))
-    print(data[0])
-    # print(data[1].shape)
+    '''
+        input: data -> [(image, label)] * batch_size
+    '''
+    transposed_data = list(zip(*data))
+
+    print(transposed_data)
+
+    images, labels = np.stack(transposed_data[0]), np.array(transposed_data[1])
+
+    return images, labels
 
 batch_size = 128
 train_dataset = MNIST(root='train_mnist', train=True, download=True, transform=to_flatten_nparr)
