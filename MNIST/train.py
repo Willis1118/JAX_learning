@@ -54,7 +54,7 @@ for epoch in range(epochs):
     for imgs, labels in train_loader:
         gt_labels = jax.nn.one_hot(labels, len(MNIST.classes))
         print(gt_labels.shape)
-        MLP_params = update(MLP_params, imgs, gt_labels, lr)
-        print(MLP_params)
+        loss, MLP_params = update(MLP_params, imgs, gt_labels, lr)
+        print(loss)
         break
     break
