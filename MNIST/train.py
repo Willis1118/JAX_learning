@@ -34,7 +34,7 @@ train_loader = DataLoader(
     batch_size=batch_size,
     shuffle=True,
     collate_fn=collate_fn,
-    drop_last=True
+    drop_last=True # --> drop the last 
 )
 
 test_loader = DataLoader(
@@ -60,17 +60,25 @@ train_steps = 0
 log_every = 100
 test_every = 500
 
+avg_loss = 0
+avg_acc = 0
+
 for epoch in range(epochs):
     for imgs, labels in train_loader:
         gt_labels = jax.nn.one_hot(labels, len(MNIST.classes))
         loss, MLP_params = update(MLP_params, imgs, gt_labels, lr)
+
+        avg_loss += loss
 
         if train_steps % log_every == 0 and train_steps > 0:
             print(f"Epoch: {epoch}, Steps: {train_steps}, Loss: {loss}")
         
         if train_steps % test_every == 0 and train_steps > 0:
             acc = accuracy(MLP_params, test_loader)
+            avg_acc += acc
             print(f"Epoch: {epoch}, Steps: {train_steps}, Acc: {acc}")
         
         train_steps += 1
+    
+    print(f"Epoch: {epoch}, Avg Loss: {avg_loss / len(train_loader)}, Avg Acc: {avg_acc / len(train_loader) * test_every}")
 
