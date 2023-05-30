@@ -27,6 +27,9 @@ class BiasAdderWithRunningMean(nn.Module):
 
     @nn.compact
     def __call__(self, x):
+
+        print('decay', self.decay_rate)
+
         is_init = self.has_variable('batch_stats', 'ema')
 
         ## Notice that batch_stats is not an arbitrary name
@@ -40,8 +43,7 @@ class BiasAdderWithRunningMean(nn.Module):
 
         if is_init:
             # self.variable returns a reference hence .value
-            print(self.decay_rate)
-            ema.value = self.decay * ema.value + (1.0 - self.decay) * jnp.mean(x, axis=0, keepdims=True)
+            ema.value = 0.99 * ema.value + (1.0 - 0.99) * jnp.mean(x, axis=0, keepdims=True)
         
         return x - ema.value + bias # ema stands for exponentially moving average
 
