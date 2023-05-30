@@ -45,7 +45,8 @@ def make_loss(model, xs, ys):
         ## inner here simply meaning inner product of two 1-D arrays
         return jnp.mean(
             jax.vmap(
-                lambda x, y: jnp.inner(y-model.apply(params, x), y-model.apply(params, x), in_axes=(0,0))
+                lambda x, y: jnp.inner(y-model.apply(params, x), y-model.apply(params, x)), 
+                in_axes=(0,0)
                 )(xs, ys), 
             axis=0)
     
