@@ -130,6 +130,7 @@ if __name__ == '__main__':
         ## it's recommended to use optax's built in optimizer
         updates, opt_state = opt_sgd.update(grads, opt_state)
         params = optax.apply_updates(params, updates)
+        ## it's also possible to define custom lr_scheduler and other stuff with optax
 
         if epoch % log_every == 0:
             print(f'Epoch: {epoch:3f}, Loss: {loss:3f}')

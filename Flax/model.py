@@ -27,11 +27,11 @@ class MLP(nn.Module):
     # def setup(self): # since data class implicitly called __init__
     #     self.layers = [nn.Dense(n) for n in self.num_neuron_per_layer]
     
-    @nn.compact
+    @nn.compact # --> allows modules to be defined inline
     def __call__(self, x): #overwrite the __call__ operator to make the class callable
         for i, n in enumerate(self.num_neuron_per_layer):
             x = nn.Dense(n)(x)
-            if i != len(self.layers) - 1:
+            if i != len(self.num_neuron_per_layer) - 1:
                 x = nn.relu(x)
         return x
     
