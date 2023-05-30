@@ -45,9 +45,9 @@ if __name__ == '__main__':
 
     params = init_params(model)
     key = jax.random.PRNGKey(seed)
-    x = jax.random.normal(key, (20,))
+    x = jax.random.normal(key, (10,))
 
-    ## Will model correctly infer the shape here?
+    ## Will model correctly infer the shape here? Nope, params init with shape (10)
     y = model.apply(params, x)
     print(y)
 
