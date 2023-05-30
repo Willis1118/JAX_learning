@@ -42,7 +42,7 @@ def make_loss(model, xs, ys):
         '''
             Given xs, ys, params, compute the loss
         '''
-        ## 
+        ## inner here simply meaning inner product of two 1-D arrays
         return jnp.mean(
             jnp.vmap(
                 lambda x, y: jnp.inner(y-model.apply(params, x), y-model.apply(params, x), in_axes=(0,0))
@@ -95,6 +95,36 @@ if __name__ == '__main__':
     print(f"input shape: {xs.shape}, target shape: {ys.shape}")
  
     criterion = make_loss(model, xs, ys)
+
+    ## notice that the dataset is contained in the closure
     value_and_grad_fn = jax.value_and_grad(criterion)
+
+    model = nn.Dense(features=y_dim)
+    params = model.init(key, xs)
+    print(f'init params: {params}')
+
+    ## Basic config
+    lr = 0.3
+    epochs = 20
+    log_every = 5
+
+    print('-' * 50)
+    for epoch in range(epochs):
+        loss, grads = value_and_grad_fn(params)
+
+        ## SGD
+        params = jax.tree_map(
+            lambda p, g: p - lr*g,
+            params,
+            grads
+        )
+
+        if epoch % log_every == 0:
+            print(f'Epoch: {epoch:3f}, Loss: {loss:3f}')
+    
+    print('-' * 50)
+    print(f'Learned Params: {params}')
+    print(f'GT_params: {true_params}')
+
 
 
