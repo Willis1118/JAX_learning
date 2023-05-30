@@ -14,7 +14,7 @@ import functools
 from typing import Any, Callable, Sequence, Optional
 
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     ## single forward-feed layer
