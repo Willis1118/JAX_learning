@@ -30,6 +30,12 @@ def init_params(model):
     print(y)
     print((jax.tree_map(lambda x: x.shape, params)))
 
+    ## Note 1: automatic shape inference
+    ##         notice that from above we did not specify shape of input; the input shape is inferred
+    ## Note 2: immutable structure (hence frozen dict)
+    ## Note 3: init_with_output will produce the inference as another output
+    return params
+
 if __name__ == '__main__':
     ## single forward-feed layer
     model = nn.Dense(features=5)
@@ -37,6 +43,18 @@ if __name__ == '__main__':
     ## All Flax NN layer inherit from the Module class
     print(nn.Dense.__base__)
 
-    init_params(model)
+    params = init_params(model)
+    key = jax.random.PRNGKey(seed)
+    x = jax.random.normal(key, (20,))
+
+    ## Will model correctly infer the shape here?
+    y = model.apply(params, x)
+    print(y)
+
+    ## Also this does not work anymore
+    try:
+        y = model(x)
+    except Exception as e:
+        print(e)
 
 
