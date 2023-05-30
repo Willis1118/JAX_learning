@@ -7,6 +7,8 @@ from flax.core import freeze, unfreeze
 from flax import linen as nn
 from flax.training import train_state
 
+import optax
+
 from torchvision.datasets import MNIST
 from torch.utils.data import DataLoader
 
@@ -109,6 +111,11 @@ if __name__ == '__main__':
     epochs = 20
     log_every = 5
 
+    ## Optimizer
+    opt_sgd = optax.sgd(learning_rate=lr)
+    opt_state = opt_sgd.init(params) # --> handle state externally
+    print(opt_state)
+
     print('-' * 50)
     for epoch in range(epochs):
         loss, grads = value_and_grad_fn(params)
@@ -119,6 +126,10 @@ if __name__ == '__main__':
             params,
             grads
         )
+
+        ## it's recommended to use optax's built in optimizer
+        updates, opt_state = opt_sgd.update(grads, opt_state)
+        params = optax.apply_updates(params, updates)
 
         if epoch % log_every == 0:
             print(f'Epoch: {epoch:3f}, Loss: {loss:3f}')
