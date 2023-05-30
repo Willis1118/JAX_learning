@@ -24,12 +24,13 @@ import numpy as np
 class MLP(nn.Module):
     num_neuron_per_layer: Sequence[int] # data field
 
-    def setup(self): # since data class implicitly called __init__
-        self.layers = [nn.Dense(n) for n in self.num_neuron_per_layer]
+    # def setup(self): # since data class implicitly called __init__
+    #     self.layers = [nn.Dense(n) for n in self.num_neuron_per_layer]
     
+    @nn.compact
     def __call__(self, x): #overwrite the __call__ operator to make the class callable
-        for i, layer in enumerate(self.layers):
-            x = layer(x)
+        for i, n in enumerate(self.num_neuron_per_layer):
+            x = nn.Dense(n)(x)
             if i != len(self.layers) - 1:
                 x = nn.relu(x)
         return x
@@ -37,7 +38,7 @@ class MLP(nn.Module):
 seed = 42
 x_key, init_key = random.split(random.PRNGKey(seed))
 
-model = MLP([16,8,1])
+model = MLP([16,8,1]) # --> calling data class
 x = random.normal(x_key, (4,4))
 params = model.init(init_key, x)
 
