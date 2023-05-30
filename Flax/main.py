@@ -94,14 +94,14 @@ if __name__ == '__main__':
 
     print(f"input shape: {xs.shape}, target shape: {ys.shape}")
  
+    model = nn.Dense(features=y_dim)
+    params = model.init(key, xs)
+    print(f'init params: {params}')
+
     criterion = make_loss(model, xs, ys)
 
     ## notice that the dataset is contained in the closure
     value_and_grad_fn = jax.value_and_grad(criterion)
-
-    model = nn.Dense(features=y_dim)
-    params = model.init(key, xs)
-    print(f'init params: {params}')
 
     ## Basic config
     lr = 0.3
