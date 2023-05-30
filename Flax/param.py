@@ -30,7 +30,7 @@ class MyDenseImp(nn.Module):
     def __call__(self, x):
         weight = self.param(
             'weight', #--> key in frozen dict
-            self.weight_init, # --> random state implicitly passed into the function when calling init
+            self.weight_init, # --> random state implicitly called when calling init
             (x.shape[-1], self.num_neurons) # --> shape info
         )
         bias = self.param(
