@@ -23,7 +23,7 @@ from typing import Any, Callable, Sequence, Optional
 import numpy as np
 
 class BiasAdderWithRunningMean(nn.Module):
-    decay: float = 0.99
+    decay_rate: float = 0.99
 
     @nn.compact
     def __call__(self, x):
@@ -40,7 +40,7 @@ class BiasAdderWithRunningMean(nn.Module):
 
         if is_init:
             # self.variable returns a reference hence .value
-            print(self.decay)
+            print(self.decay_rate)
             ema.value = self.decay * ema.value + (1.0 - self.decay) * jnp.mean(x, axis=0, keepdims=True)
         
         return x - ema.value + bias # ema stands for exponentially moving average
