@@ -36,6 +36,21 @@ def init_params(model):
     ## Note 3: init_with_output will produce the inference as another output
     return params
 
+def make_loss(model, xs, ys):
+
+    def mse_loss(params):
+        '''
+            Given xs, ys, params, compute the loss
+        '''
+        ## 
+        return jnp.mean(
+            jnp.vmap(
+                lambda x, y: jnp.inner(y-model.apply(params, x), y-model.apply(params, x), in_axes=(0,0))
+                )(xs, ys), 
+            axis=0)
+    
+    return jax.jit(mse_loss)
+
 if __name__ == '__main__':
     ## single forward-feed layer
     model = nn.Dense(features=5)
@@ -79,5 +94,7 @@ if __name__ == '__main__':
 
     print(f"input shape: {xs.shape}, target shape: {ys.shape}")
  
+    criterion = make_loss(model, xs, ys)
+    value_and_grad_fn = jax.value_and_grad(criterion)
 
 
