@@ -37,4 +37,6 @@ if __name__ == '__main__':
     ## All Flax NN layer inherit from the Module class
     print(nn.Dense.__base__)
 
+    init_params(model)
+
 
