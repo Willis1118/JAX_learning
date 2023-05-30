@@ -23,13 +23,10 @@ from typing import Any, Callable, Sequence, Optional
 import numpy as np
 
 class BiasAdderWithRunningMean(nn.Module):
-    decay_rate: float = 0.99
+    decay: float = 0.99
 
     @nn.compact
     def __call__(self, x):
-
-        print('decay', self.decay_rate)
-
         is_init = self.has_variable('batch_stats', 'ema')
 
         ## Notice that batch_stats is not an arbitrary name
@@ -43,14 +40,14 @@ class BiasAdderWithRunningMean(nn.Module):
 
         if is_init:
             # self.variable returns a reference hence .value
-            ema.value = 0.99 * ema.value + (1.0 - 0.99) * jnp.mean(x, axis=0, keepdims=True)
+            ema.value = self.decay * ema.value + (1.0 - self.decay) * jnp.mean(x, axis=0, keepdims=True)
         
         return x - ema.value + bias # ema stands for exponentially moving average
 
 seed = 42
 x_key, init_key = random.split(random.PRNGKey(seed))
 
-model = BiasAdderWithRunningMean([16,8,1]) # --> calling data class
+model = BiasAdderWithRunningMean() # --> calling data class
 x = random.normal(x_key, (10,4))
 params = model.init(init_key, x)
 
