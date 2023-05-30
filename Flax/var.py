@@ -40,6 +40,7 @@ class BiasAdderWithRunningMean(nn.Module):
 
         if is_init:
             # self.variable returns a reference hence .value
+            print(self.decay)
             ema.value = self.decay * ema.value + (1.0 - self.decay) * jnp.mean(x, axis=0, keepdims=True)
         
         return x - ema.value + bias # ema stands for exponentially moving average
