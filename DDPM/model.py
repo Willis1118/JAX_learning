@@ -144,7 +144,7 @@ class LinearAttention(nn.Module):
     @nn.compact
     def __call__(self, x):
         b, c, h, w = x.shape
-        hidden = self.heads * self.dim_heads
+        hidden = self.heads * self.dim_head
         scale = self.dim_head ** -0.5
         qkv = nn.Conv(
             features=hidden * 3,
