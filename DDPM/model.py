@@ -75,8 +75,8 @@ class Block(nn.Module):
 
 class ResNetBlock(nn.Module):
     dim_out: int
-    emb_dim: int = None
     groups: int
+    emb_dim: int = None
 
     '''
         ResNet Block
