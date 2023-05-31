@@ -261,9 +261,10 @@ if __name__ == '__main__':
     x = random.normal(x_key, (10,256,256,3))
     t = random.uniform(t_key, (10,))
 
-    params = model.init(init_key, x, time=t)
+    y, params = model.init_with_output(init_key, x, time=t)
 
     print(jax.tree_map(jnp.shape, params))
+    print(y.shape)
 
 
 
