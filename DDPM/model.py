@@ -93,7 +93,7 @@ class ResNetBlock(nn.Module):
         
         h = Block(self.dim_out, self.groups)(x)
         
-        if x.shape[1] != h.shape[1]:
+        if x.shape[-1] != h.shape[-1]:
             h += nn.Conv(self.dim_out, (1,1))(x)
         else:
             h += x
