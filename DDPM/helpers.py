@@ -47,7 +47,7 @@ def Upsample(dim):
     return nn.ConvTranspose(
         features=dim,
         kernel_size=(4,4),
-        strides=2,
+        strides=[2],
         padding=1
     )
 
@@ -55,7 +55,7 @@ def Downsample(dim):
     return nn.Conv(
         features=dim,
         kernel_size=(4,4),
-        strides=[2],
+        strides=2,
         padding=1
     )
 
