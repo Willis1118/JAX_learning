@@ -130,7 +130,7 @@ class Attention(nn.Module):
         q = q * scale
         esum = jnp.einsum('b h d i, b h d j -> b h i j', q, k)
         esum -= jnp.amax(esum, axis=-1, keepdims=True)
-        attn = jnp.softmax(esum, axis=-1)
+        attn = jax.nn.softmax(esum, axis=-1)
 
         out = jnp.einsum('b h i j, b h d j -> b h i d', attn, v)
         out = rearrange('b h (x y) d -> b x y (h d)', x=h, y=w)
@@ -160,8 +160,8 @@ class LinearAttention(nn.Module):
             lambda t: rearrange(t, 'b x y (h c) -> b h c (x y)', h=self.heads), qkv
         )
 
-        q = jnp.softmax(q, axis=-2)
-        k = jnp.softmax(k, axis=-1)
+        q = jax.nn.softmax(q, axis=-2)
+        k = jax.nn.softmax(k, axis=-1)
 
         q = q * scale
 
