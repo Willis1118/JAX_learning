@@ -258,7 +258,7 @@ if __name__ == '__main__':
 
     x_key, t_key, init_key = random.split(random.PRNGKey(0), num=3)
 
-    x = random.normal(x_key, (10,3,256,256))
+    x = random.normal(x_key, (10,256,256,3))
     t = random.uniform(t_key, (10,))
 
     params = model.init(init_key, x, time=t)
