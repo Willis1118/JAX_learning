@@ -188,7 +188,7 @@ class UNet(nn.Module):
         b, c, h, w = x.shape
 
         init_dim = default(self.init_dim, c // 3 * 2)
-        init_conv = nn.Conv(init_dim, 7, padding=3)
+        init_conv = nn.Conv(init_dim, (7,7), padding=3)
 
         dims = [init_dim, *map(lambda m: c * m, self.dim_mults)]
         in_out = list(zip(dims[:-1], dims[1:]))
