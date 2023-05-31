@@ -75,7 +75,7 @@ class Block(nn.Module):
 
 class ResNetBlock(nn.Module):
     dim_out: int
-    emb_dim: int
+    emb_dim: int = None
     groups: int
 
     '''
@@ -248,7 +248,7 @@ class UNet(nn.Module):
                 x = Upsample(dim_in)(x)
     
         out_dim = default(self.out_dim, self.channels)
-        x = block_class(self.dim)(x, t)
+        x = block_class(dim_out=self.dim)(x, t)
         x = nn.Conv(out_dim, (1,1))(x)
 
         return x
