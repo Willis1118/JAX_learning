@@ -133,7 +133,7 @@ class Attention(nn.Module):
         attn = jax.nn.softmax(esum, axis=-1)
 
         out = jnp.einsum('b h i j, b h d j -> b h i d', attn, v)
-        out = rearrange('b h (x y) d -> b x y (h d)', x=h, y=w)
+        out = rearrange(out, 'b h (x y) d -> b x y (h d)', x=h, y=w)
         return nn.Conv(self.dim, (1,1))(out)
     
 class LinearAttention(nn.Module):
@@ -168,7 +168,7 @@ class LinearAttention(nn.Module):
         context = jnp.einsum('b h d n, b h e n -> b h d e', k, v)
 
         out = jnp.einsum('b h d e, b h d n -> b h e n', context, q)
-        out = rearrange('b h c (x y) -> b x y (h c)', h=self.heads, x=h, y=w)
+        out = rearrange(out, 'b h c (x y) -> b x y (h c)', h=self.heads, x=h, y=w)
 
         return nn.Conv(self.dim, (1,1))(nn.GroupNorm(1)(out))
     
