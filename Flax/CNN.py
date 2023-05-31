@@ -92,7 +92,7 @@ test_labels = jnp.array(test_dataset.targets)
 @jax.jit
 def train_step(state, imgs, gt_labels):
     def loss_fn(params):
-        logits = CNN().apply({'params': state.params}, imgs)
+        logits = CNN().apply({'params': params}, imgs)
         one_hot_gt_labels = jax.nn.one_hot(gt_labels, num_classes=10)
         loss = -jnp.mean(jnp.sum(one_hot_gt_labels * logits, axis=-1))
         return loss, logits
