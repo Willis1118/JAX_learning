@@ -26,14 +26,14 @@ import numpy as np
 '''
 
 class CNN(nn.Module):
-    hidden: Sequence[int] = [32, 64, 256]
     out: int = 10
 
     @nn.compact
     def __call__(self, x):
-        for i, layer in enumerate(self.hidden):
+        hidden = [32, 64, 256]
+        for i, layer in enumerate(hidden):
 
-            if i != len(self.hidden) - 1:
+            if i != len(hidden) - 1:
                 x = nn.Conv(features=layer, kernel_size=(3,3))(x)
                 x = nn.relu(x)
                 x = nn.avg_pool(x, window_shape=(2,2), strides=(2,2))
