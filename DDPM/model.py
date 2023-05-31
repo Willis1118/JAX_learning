@@ -235,7 +235,7 @@ class UNet(nn.Module):
         x = block_class(mid_dim, time_dim)(x, t)
 
         for i, (dim_in, dim_out) in enumerate(reversed(in_out[1:])):
-            x = jnp.concatenate((x, h.pop()), axis=1)
+            x = jnp.concatenate((x, h.pop()), axis=-1)
 
             is_last = i >= len(in_out) - 1
 
