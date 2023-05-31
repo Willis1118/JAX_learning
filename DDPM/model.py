@@ -222,7 +222,7 @@ class UNet(nn.Module):
             x = block_class(dim_out=dim_out, emb_dim=time_dim)(x, t)
             x = block_class(dim_out=dim_out, emb_dim=time_dim)(x, t)
 
-            x = Residual(PreNorm(LinearAttention(dim_out).apply).apply).apply(x)
+            x = Residual(PreNorm(LinearAttention(dim_out)))(x)
 
             h.append(x)
 
@@ -231,7 +231,7 @@ class UNet(nn.Module):
             
         mid_dim = dims[-1]
         x = block_class(mid_dim, time_dim)(x, t)
-        x = Residual(PreNorm(LinearAttention(self.mid_dim).apply).apply).apply(x)
+        x = Residual(PreNorm(LinearAttention(mid_dim)))(x)
         x = block_class(mid_dim, time_dim)(x, t)
 
         for i, (dim_in, dim_out) in enumerate(reversed(in_out[1:])):
@@ -242,7 +242,7 @@ class UNet(nn.Module):
             x = block_class(dim_out=dim_in, emb_dim=time_dim)(x, t)
             x = block_class(dim_out=dim_in, emb_dim=time_dim)(x, t)
 
-            x = Residual(PreNorm(LinearAttention(dim_in).apply).apply).apply(x)
+            x = Residual(PreNorm(LinearAttention(dim_in)))(x)
 
             if not is_last:
                 x = Upsample(dim_in)(x)
