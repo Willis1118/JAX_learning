@@ -53,7 +53,7 @@ def update_step(opt, apply_fn, x, opt_state, params, non_trainable_params):
         y, updated_non_params = apply_fn(
             {'params': params, **non_trainable_params},
             x,
-            mutable=list(**non_trainable_params.keys())
+            mutable=list(non_trainable_params.keys())
         )
 
         loss = ((x - y) ** 2).sum()
