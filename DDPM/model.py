@@ -200,7 +200,7 @@ class UNet(nn.Module):
             time_mlp = nn.Sequential(
                 PositionalEmbedding(c),
                 nn.Dense(time_dim),
-                nn.activation.gelu(),
+                nn.activation.gelu,
                 nn.Dense(time_dim)
             )
         else:
