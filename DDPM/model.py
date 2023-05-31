@@ -42,7 +42,7 @@ class PositionalEmbedding(nn.Module):
         embeddings = jnp.exp(jnp.arange(half_dim) * -embeddings)
         embeddings = time[:, None] * embeddings[None, :]
         # embeddings = jnp.inner(time, embeddings)
-        embeddings = jnp.concatenate((embeddings.sin(), embeddings.cos()), axis=-1)
+        embeddings = jnp.concatenate((jnp.sin(embeddings), jnp.cos(embeddings)), axis=-1)
         return embeddings
 
 class Block(nn.Module):
