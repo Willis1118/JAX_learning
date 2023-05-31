@@ -44,16 +44,58 @@ class BiasAdderWithRunningMean(nn.Module):
         
         return x - ema.value + bias # ema stands for exponentially moving average
 
+def update_step(opt, apply_fn, x, opt_state, params, non_trainable_params):
+    '''
+        Maintaining train state
+    '''
+
+    def loss_fn(params):
+        y, updated_non_params = apply_fn(
+            {'params': params, **non_trainable_params},
+            x,
+            mutable=list(**non_trainable_params.keys())
+        )
+
+        loss = ((x - y) ** 2).sum()
+
+        return loss, updated_non_params
+
+    ## calculate grads
+    (loss, non_trainable_params), grads = jax.value_and_grad(loss_fn, has_aux=True)(params)
+
+    ## update opt state
+    updates, opt_state = opt.update(grads, opt_state)
+
+    ## update params
+    params = optax.apply_updates(params, updates)
+
+    ## return all states
+    return opt_state, params, non_trainable_params
+
 seed = 42
 x_key, init_key = random.split(random.PRNGKey(seed))
 
 model = BiasAdderWithRunningMean() # --> calling data class
-x = random.normal(x_key, (10,4))
-params = model.init(init_key, x)
+x = jnp.ones((10,4))
+vars = model.init(init_key, x)
+non_trainable_params, params = vars.pop('params')
+
+del vars
 
 print(f'Multiple collections = {params}')
 
 ## for variables to be updated during the run, we need to explicitly specify them as mutable
-y, updated_non_params = model.apply(params, x, mutable=['batch_stats'])
-print(updated_non_params)
+# y, updated_non_params = model.apply(params, x, mutable=['batch_stats'])
+# print(updated_non_params)
+
+opt = optax.sgd(learning_rate=0.1)
+opt_state = opt.init(params) # init using trainable params
+
+for _ in range(3):
+    opt_state, params, non_trainable_params = update_step(opt, model.apply, x, opt_state, params, non_trainable_params)
+    print(non_trainable_params)
+
+
+
+
 
