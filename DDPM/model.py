@@ -198,10 +198,10 @@ class UNet(nn.Module):
         if self.with_time_emb:
             time_dim = c * 4
             time_mlp = nn.Sequential(
-                PositionalEmbedding(c),
+                [PositionalEmbedding(c).apply,
                 nn.Dense(time_dim),
                 nn.activation.gelu,
-                nn.Dense(time_dim)
+                nn.Dense(time_dim)]
             )
         else:
             time_mlp = None
