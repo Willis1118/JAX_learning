@@ -255,7 +255,7 @@ if __name__ == '__main__':
     x = random.normal(x_key, (1,3,256,256))
     t = random.normal(t_key, (1,1))
 
-    params = model.init(init_key, x, t)
+    params = model.init(init_key, x, time=t)
 
     print(jax.tree_map(jnp.shape, params))
 
