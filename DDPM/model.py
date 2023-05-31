@@ -191,7 +191,7 @@ class UNet(nn.Module):
         init_dim = default(self.init_dim, self.dim // 3 * 2)
         init_conv = nn.Conv(init_dim, (7,7), padding=3)
 
-        dims = [init_dim, *map(lambda m: c * m, self.dim_mults)]
+        dims = [init_dim, *map(lambda m: self.dim * m, self.dim_mults)]
         in_out = list(zip(dims[:-1], dims[1:]))
 
         block_class = partial(ResNetBlock, groups=self.resnet_block_groups)
