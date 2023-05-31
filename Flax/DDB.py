@@ -39,7 +39,7 @@ model = DDBlock(num_neurons=3, training=True)
 x = random.uniform(keys[0], (3,4,4))
 
 # the unique identifier is due to Dropout
-variables = model.init({'params': keys[1], 'dropout': keys[2]}, x)
+variables = model.init({'params': keys[1]}, x)
 print(variables)
 
 y, non_trainable_params = model.apply(variables, x, rngs={'dropout': keys[3]}, mutable=['batch_stats'])
