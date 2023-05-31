@@ -250,11 +250,12 @@ class UNet(nn.Module):
 if __name__ == '__main__':
     model = UNet()
 
-    x_key, init_key = random.split(random.PRNGKey(0))
+    x_key, t_key, init_key = random.split(random.PRNGKey(0), num=3)
 
     x = random.normal(x_key, (1,3,256,256))
+    t = random.normal(t_key, (1,1))
 
-    params = model.init(init_key, x)
+    params = model.init(init_key, x, t)
 
     print(jax.tree_map(jnp.shape, params))
 
