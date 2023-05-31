@@ -55,6 +55,9 @@ class Block(nn.Module):
 
     @nn.compact
     def __call__(self, x, *, scale_shift=None):
+
+        print(x.shape)
+
         x = nn.Conv(
             features=self.dim,
             kernel_size=(3,3),
