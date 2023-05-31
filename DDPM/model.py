@@ -82,6 +82,8 @@ class ResNetBlock(nn.Module):
     def __call__(self, x, time_emb=None):
         h = Block(self.dim_out, self.groups)(x)
 
+        print(h.shape)
+
         if exists(time_emb):
             time_emb = nn.Dense(features=self.dim_out)(nn.activation.silu(time_emb))
             h = rearrange(time_emb, 'b c -> b c 1 1') + h
@@ -253,8 +255,8 @@ if __name__ == '__main__':
 
     x_key, t_key, init_key = random.split(random.PRNGKey(0), num=3)
 
-    x = random.normal(x_key, (1,3,256,256))
-    t = random.uniform(t_key, (1,))
+    x = random.normal(x_key, (10,3,256,256))
+    t = random.uniform(t_key, (10,))
 
     params = model.init(init_key, x, time=t)
 
