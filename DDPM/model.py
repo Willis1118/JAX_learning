@@ -57,7 +57,7 @@ class Block(nn.Module):
     def __call__(self, x, *, scale_shift=None):
         x = nn.Conv(
             features=self.dim,
-            kernel_size=3,
+            kernel_size=(3,3),
             padding=1,
         )(x)
         x = nn.GroupNorm(
@@ -89,7 +89,7 @@ class ResNetBlock(nn.Module):
         h = Block(self.dim_out, self.groups)(x)
         
         if x.shape[1] != h.shape[1]:
-            h += nn.Conv(self.dim_out, 1)(x)
+            h += nn.Conv(self.dim_out, (1,1))(x)
         else:
             h += x
         
@@ -110,7 +110,7 @@ class Attention(nn.Module):
         scale = self.dim_head ** -0.5
         qkv = nn.Conv(
             features=hidden * 3,
-            kernel_size=1,
+            kernel_size=(1,1),
             use_bias=False
         )(x).split(3, axis=1)
 
@@ -129,7 +129,7 @@ class Attention(nn.Module):
 
         out = jnp.einsum('b h i j, b h d j -> b h i d', attn, v)
         out = rearrange('b h (x y) d -> b (h d) x y', x=h, y=w)
-        return nn.Conv(self.dim)(out)
+        return nn.Conv(self.dim, (1,1))(out)
     
 class LinearAttention(nn.Module):
     dim: int
@@ -143,7 +143,7 @@ class LinearAttention(nn.Module):
         scale = self.dim_head ** -0.5
         qkv = nn.Conv(
             features=hidden * 3,
-            kernel_size=1,
+            kernel_size=(1,1),
             use_bias=False
         )(x).split(3, axis=1)
 
@@ -165,7 +165,7 @@ class LinearAttention(nn.Module):
         out = jnp.einsum('b h d e, b h d n -> b h e n', context, q)
         out = rearrange('b h c (x y) -> b (h c) x y', h=self.heads, x=h, y=w)
 
-        return nn.Conv(self.dim, 1)(nn.GroupNorm(1)(out))
+        return nn.Conv(self.dim, (1,1))(nn.GroupNorm(1)(out))
     
 class PreNorm(nn.Module):
     fn: Callable
@@ -244,7 +244,7 @@ class UNet(nn.Module):
     
         out_dim = default(self.out_dim, self.channels)
         x = block_class(self.dim)(x, t)
-        x = nn.Conv(out_dim, 1)(x)
+        x = nn.Conv(out_dim, (1,1))(x)
 
         return x
 
