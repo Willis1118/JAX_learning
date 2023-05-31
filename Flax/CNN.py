@@ -65,9 +65,10 @@ def collate_fn(data):
 
     return images, labels
 
-batch_size = 128
+batch_size = 32
 train_dataset = MNIST(root='train_mnist', train=True, download=True, transform=to_flatten_nparr)
 test_dataset = MNIST(root='test_mnist', train=False, download=True, transform=to_flatten_nparr)
+mnist_image_size = [28, 28, 1]
 
 train_loader = DataLoader(
     train_dataset,
@@ -136,7 +137,7 @@ def create_train_state(key, lr, momentum):
         maintaining training state
     '''
     cnn = CNN()
-    params = cnn.init(key, jnp.ones([1, 28, 28]))['params']
+    params = cnn.init(key, jnp.ones([1, *mnist_image_size]))['params']
     sgd_opt = optax.sgd(lr, momentum)
     ## TrainState is a simple built-in wrapper class that makes things a bit cleaner
     ## enabling apply gradient on params & sgd_opt
