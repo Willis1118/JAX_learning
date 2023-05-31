@@ -162,7 +162,7 @@ def compute_metrics(*, logits, gt_labels):
 seed = 0
 lr = 0.1
 momentum = 0.9
-num_epochs = 2
+num_epochs = 10
 batch_size = 32
 
 train_state = create_train_state(jax.random.PRNGKey(seed), lr, momentum)
@@ -172,6 +172,6 @@ for epoch in range(1, num_epochs + 1):
     print(f"Train epoch: {epoch}, loss: {train_metrics['loss']}, accuracy: {train_metrics['acc']}")
 
     test_metrics = eval_model(train_state, test_images, test_labels)
-    print(f"Train epoch: {epoch}, loss: {test_metrics['loss']}, accuracy: {test_metrics['acc']}")
+    print(f"Test epoch: {epoch}, loss: {test_metrics['loss']}, accuracy: {test_metrics['acc']}")
 
             
