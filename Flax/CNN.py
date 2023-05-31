@@ -32,7 +32,7 @@ class CNN(nn.Module):
     def __call__(self, x):
         hidden = [32, 64, 256]
         for i, layer in enumerate(hidden):
-
+            print(x.shape)
             if i != len(hidden) - 1:
                 x = nn.Conv(features=layer, kernel_size=(3,3))(x)
                 x = nn.relu(x)
