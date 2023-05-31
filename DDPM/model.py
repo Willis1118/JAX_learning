@@ -89,7 +89,7 @@ class ResNetBlock(nn.Module):
 
         if exists(time_emb):
             time_emb = nn.Dense(features=self.dim_out)(nn.activation.silu(time_emb))
-            h = rearrange(time_emb, 'b c -> b c 1 1') + h
+            h = rearrange(time_emb, 'b c -> b 1 1 c') + h
         
         h = Block(self.dim_out, self.groups)(x)
         
