@@ -176,6 +176,7 @@ class PreNorm(nn.Module):
         return self.fn(x)
 
 class UNet(nn.Module):
+    dim: int
     init_dim: int = None
     out_dim: int = None
     dim_mults: Tuple[int] = (1,2,4,8)
@@ -187,7 +188,7 @@ class UNet(nn.Module):
     def __call__(self, x, time):
         b, c, h, w = x.shape
 
-        init_dim = default(self.init_dim, c // 3 * 2)
+        init_dim = default(self.init_dim, self.dim // 3 * 2)
         init_conv = nn.Conv(init_dim, (7,7), padding=3)
 
         dims = [init_dim, *map(lambda m: c * m, self.dim_mults)]
@@ -196,9 +197,9 @@ class UNet(nn.Module):
         block_class = partial(ResNetBlock, groups=self.resnet_block_groups)
 
         if self.with_time_emb:
-            time_dim = c * 4
+            time_dim = self.dim * 4
             time_mlp = nn.Sequential(
-                [PositionalEmbedding(c),
+                [PositionalEmbedding(self.dim),
                 nn.Dense(time_dim),
                 nn.activation.gelu,
                 nn.Dense(time_dim)]
@@ -242,13 +243,13 @@ class UNet(nn.Module):
                 x = Upsample(dim_in)(x)
     
         out_dim = default(self.out_dim, self.channels)
-        x = block_class(c)(x, t)
+        x = block_class(self.dim)(x, t)
         x = nn.Conv(out_dim, 1)(x)
 
         return x
 
 if __name__ == '__main__':
-    model = UNet()
+    model = UNet(dim=128)
 
     x_key, t_key, init_key = random.split(random.PRNGKey(0), num=3)
 
