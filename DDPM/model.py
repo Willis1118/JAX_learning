@@ -117,7 +117,7 @@ class Attention(nn.Module):
             features=hidden * 3,
             kernel_size=(1,1),
             use_bias=False
-        )(x).split(3, axis=1)
+        )(x).split(3, axis=-1)
 
         '''
             Attention process
@@ -150,7 +150,7 @@ class LinearAttention(nn.Module):
             features=hidden * 3,
             kernel_size=(1,1),
             use_bias=False
-        )(x).split(3, axis=1)
+        )(x).split(3, axis=-1)
 
         '''
             Attention process
