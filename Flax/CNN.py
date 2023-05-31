@@ -169,9 +169,9 @@ train_state = create_train_state(jax.random.PRNGKey(seed), lr, momentum)
 
 for epoch in range(1, num_epochs + 1):
     train_state, train_metrics = train_one_epoch(train_state, train_loader, epoch)
-    print(f"Train epoch: {epoch}, loss: {train_metrics['loss']}, accuracy: {train_metrics['accuracy']}")
+    print(f"Train epoch: {epoch}, loss: {train_metrics['loss']}, accuracy: {train_metrics['acc']}")
 
     test_metrics = eval_model(train_state, test_images, test_labels)
-    print(f"Train epoch: {epoch}, loss: {test_metrics['loss']}, accuracy: {test_metrics['accuracy']}")
+    print(f"Train epoch: {epoch}, loss: {test_metrics['loss']}, accuracy: {test_metrics['acc']}")
 
             
