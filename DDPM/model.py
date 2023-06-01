@@ -24,7 +24,7 @@ from typing import Callable, Tuple
 from functools import partial
 
 ## custom module importing
-from helpers import exists, default, Residual, Downsample, Upsample
+from helpers import exists, default, Residual, PreNorm, Downsample, Upsample
 
 ### Time Positional Embedding ###
 class PositionalEmbedding(nn.Module):
@@ -171,14 +171,6 @@ class LinearAttention(nn.Module):
         out = rearrange(out, 'b h c (x y) -> b x y (h c)', h=self.heads, x=h, y=w)
 
         return nn.Conv(self.dim, (1,1))(nn.GroupNorm(1)(out))
-    
-class PreNorm(nn.Module):
-    fn: Callable
-
-    @nn.compact
-    def __call__(self, x):
-        x = nn.GroupNorm(1)(x)
-        return self.fn(x)
 
 class UNet(nn.Module):
     dim: int
@@ -235,7 +227,7 @@ class UNet(nn.Module):
         x = block_class(mid_dim, time_dim)(x, t)
 
         for i, (dim_in, dim_out) in enumerate(reversed(in_out[1:])):
-            x = jnp.concatenate((x, h.pop()), axis=-1)
+            x = jnp.concatenate((x, h.pop()), axis=-1) # concate on channels
 
             is_last = i >= len(in_out) - 1
 

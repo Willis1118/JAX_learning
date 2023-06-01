@@ -33,6 +33,18 @@ class Residual(nn.Module):
         '''
         return self.fn(x, *args, **kwargs) + x
 
+class PreNorm(nn.Module):
+    fn: Callable
+
+    '''
+        Apply Group Norm before fn
+    '''
+
+    @nn.compact
+    def __call__(self, x):
+        x = nn.GroupNorm(1)(x)
+        return self.fn(x)
+
 def Upsample(dim):
 
     '''
@@ -48,7 +60,7 @@ def Upsample(dim):
         features=dim,
         kernel_size=(4,4),
         strides=(2,2),
-        padding=(2,2)
+        padding=(2,2) # --> out_padding
     )
 
 def Downsample(dim):
