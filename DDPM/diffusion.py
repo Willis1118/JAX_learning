@@ -64,7 +64,7 @@ class Diffuser:
         out = jnp.take_along_axis(a, -1, t)
         return jnp.reshape(out, *((1,) * (len(x_shape) - 1)))
     
-    @partial(jax.jit, static_argnums=(4,))
+    # @partial(jax.jit, static_argnums=(4,))
     def q_sample(self, key, x_start, t, noise=None):
         '''
             forward diffusion process
@@ -83,7 +83,7 @@ class Diffuser:
         ## add noise to image
         return sqrt_alphas_cumprod_t * x_start + sqrt_one_minue_alphas_cumprod_t * noise
 
-    @partial(jax.jit, static_argnums=(4,5))
+    # @partial(jax.jit, static_argnums=(4,5))
     def p_losses(self, key, denoise_model, x_start, t, noise=None, loss_type="l1"):
         '''
             evaluate the inference on diffusion mean
@@ -104,7 +104,7 @@ class Diffuser:
         
         return loss
     
-    @partial(jax.jit, static_argnums=(5,))
+    # @partial(jax.jit, static_argnums=(5,))
     def p_sample(self, key, model, x, t, t_index):
         betas_t = self.extract(self.betas, t, x.shape)
         sqrt_one_minus_alphas_cumprod_t = self.extract(
@@ -126,7 +126,7 @@ class Diffuser:
             # Algorithm 2 line 4:
             return model_mean + jnp.sqrt(posterior_variance_t) * noise 
     
-    @partial(jax.jit, static_argnums=(3,))
+    # @partial(jax.jit, static_argnums=(3,))
     def p_sample_loop(self, key, model, shape):
         b = shape[0]
         key, noise_key = random.split(key)
@@ -140,7 +140,7 @@ class Diffuser:
         
         return imgs
     
-    @partial(jax.jit, static_argnums=(3,4,5))
+    # @partial(jax.jit, static_argnums=(3,4,5))
     def sample(self, key, model, image_size, batch_size=16, channels=3):
         shape = (batch_size, image_size, image_size, channels)
         return self.p_sample_loop(key, model, shape)
