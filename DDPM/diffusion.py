@@ -63,7 +63,7 @@ class Diffuser:
     def extract(a, t, x_shape):
         batch = x_shape[0]
         print(t)
-        out = np.take_along_axis(jax.device_get(a), -1, jax.device_get(t))
+        out = np.take_along_axis(jax.device_get(a), -1, t)
         return jnp.array(np.reshape(out, (batch, *((1,) * (len(x_shape) - 1)))))
     
     # @partial(jax.jit, static_argnums=(4,))
