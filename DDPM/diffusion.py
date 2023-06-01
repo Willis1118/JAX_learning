@@ -107,7 +107,7 @@ class Diffuser:
         return loss
     
     # @partial(jax.jit, static_argnums=(5,))
-    def p_sample(self, key, model, x, t, t_index):
+    def p_sample(self, key, model, params, x, t, t_index):
         betas_t = self.extract(self.betas, t, x.shape)
         sqrt_one_minus_alphas_cumprod_t = self.extract(
             self.sqrt_one_minus_alphas_cumprod, t, x.shape
@@ -117,7 +117,7 @@ class Diffuser:
         # Equation 11 in the paper
         # Use our model (noise predictor) to predict the mean
         model_mean = sqrt_recip_alphas_t * (
-            x - betas_t * model(x, t) / sqrt_one_minus_alphas_cumprod_t
+            x - betas_t * model.apply(params, x, time=t) / sqrt_one_minus_alphas_cumprod_t
         )
 
         if t_index == 0:
@@ -129,7 +129,7 @@ class Diffuser:
             return model_mean + jnp.sqrt(posterior_variance_t) * noise 
     
     # @partial(jax.jit, static_argnums=(3,))
-    def p_sample_loop(self, key, model, shape):
+    def p_sample_loop(self, key, model, params, shape):
         b = shape[0]
         key, noise_key = random.split(key)
         img = random.normal(noise_key, shape)
@@ -137,15 +137,15 @@ class Diffuser:
         imgs = []
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
             key, sample_key = random.split(key)
-            img = self.p_sample(sample_key, model, img, jnp.full((b,), i, dtype=jnp.int32), i)
+            img = self.p_sample(sample_key, model, params, img, jnp.full((b,), i, dtype=jnp.int32), i)
             imgs.append(jax.device_get(img))
         
         return imgs
     
     # @partial(jax.jit, static_argnums=(3,4,5))
-    def sample(self, key, model, image_size, batch_size=16, channels=3):
+    def sample(self, key, model, params, image_size, batch_size=16, channels=3):
         shape = (batch_size, image_size, image_size, channels)
-        return self.p_sample_loop(key, model, shape)
+        return self.p_sample_loop(key, model, params, shape)
 
 
     
