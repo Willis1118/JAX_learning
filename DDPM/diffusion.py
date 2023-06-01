@@ -46,6 +46,7 @@ class VarScheduler:
 class Diffuser:
     
     def __init__(self, timesteps=1000):
+        self.time = timesteps
         scheduler = VarScheduler(timesteps)
         self.betas = scheduler.linear_beta_schedule()
         self.alphas = 1. - self.betas
