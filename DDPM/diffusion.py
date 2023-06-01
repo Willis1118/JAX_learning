@@ -10,6 +10,9 @@ from tqdm.auto import tqdm
 
 import numpy as np
 
+## custom modules
+from model import UNet
+
 class VarScheduler:
     def __init__(self, timesteps=1000):
         self.time = timesteps
@@ -142,10 +145,6 @@ class Diffuser:
     def sample(self, key, model, image_size, batch_size=16, channels=3):
         shape = (batch_size, image_size, image_size, channels)
         return self.p_sample_loop(key, model, shape)
-
-if __name__ == '__main__':
-    diff = Diffuser()
-
 
 
     
