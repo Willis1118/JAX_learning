@@ -44,8 +44,8 @@ class VarScheduler:
 class Diffuser:
     
     def __init__(self, timesteps=1000):
-        self.scheduler = VarScheduler(timesteps)
-        self.betas = self.linear_beta_schedule()
+        scheduler = VarScheduler(timesteps)
+        self.betas = scheduler.linear_beta_schedule()
         self.alphas = 1. - self.betas
         self.alphas_cumprod = jnp.cumprod(self.alphas, axis=0)
         self.alphas_cumprod_prev = jnp.pad(self.alphas_cumprod[:-1], (1,0), constant_values=1.0)
@@ -145,7 +145,7 @@ class Diffuser:
 
 if __name__ == '__main__':
     diff = Diffuser()
-    
+
 
 
     
