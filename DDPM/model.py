@@ -247,7 +247,7 @@ if __name__ == '__main__':
 
     key, x_key, t_key, init_key = random.split(random.PRNGKey(0), num=4)
 
-    x = random.normal(x_key, (10,256,256,3))
+    x = random.normal(x_key, (10,128,128,3))
     t = random.uniform(t_key, (10,))
 
     y, params = model.init_with_output(init_key, x, time=t)

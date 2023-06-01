@@ -62,8 +62,8 @@ class Diffuser:
     @staticmethod
     def extract(a, t, x_shape):
         batch = x_shape[0]
-        out = np.take_along_axis(jax.device_get(a), -1, jax.device_get(t))
         print(t)
+        out = np.take_along_axis(jax.device_get(a), -1, jax.device_get(t))
         return jnp.array(np.reshape(out, (batch, *((1,) * (len(x_shape) - 1)))))
     
     # @partial(jax.jit, static_argnums=(4,))
