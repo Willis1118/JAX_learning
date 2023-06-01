@@ -55,7 +55,7 @@ class Diffuser:
         self.sqrt_recip_alphas = jnp.sqrt(1.0 / self.alphas)
 
         self.sqrt_alphas_cumprod = jnp.sqrt(self.alphas_cumprod)
-        self.sqrt_one_minue_alphas_cumprod = jnp.sqrt(1. - self.alphas_cumprod)
+        self.sqrt_one_minus_alphas_cumprod = jnp.sqrt(1. - self.alphas_cumprod)
 
         self.posterior_variance = self.betas * (1. - self.alphas_cumprod_prev) / (1. - self.alphas_cumprod)
 
