@@ -57,8 +57,6 @@ class Block(nn.Module):
     @nn.compact
     def __call__(self, x, *, scale_shift=None):
 
-        print(x.shape)
-
         x = nn.Conv(
             features=self.dim,
             kernel_size=(3,3),
@@ -85,8 +83,6 @@ class ResNetBlock(nn.Module):
     @nn.compact
     def __call__(self, x, time_emb=None):
         h = Block(self.dim_out, self.groups)(x)
-
-        print(h.shape)
 
         if exists(time_emb):
             time_emb = nn.Dense(features=self.dim_out)(nn.activation.silu(time_emb))
