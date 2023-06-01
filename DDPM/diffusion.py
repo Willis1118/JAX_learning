@@ -11,7 +11,6 @@ from tqdm.auto import tqdm
 import numpy as np
 
 ## custom modules
-from model import UNet
 
 class VarScheduler:
     def __init__(self, timesteps=1000):
