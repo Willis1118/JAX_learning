@@ -33,6 +33,7 @@ from einops import rearrange
 from torchloader_util import build_transform
 from model import UNet
 from torch2jax import parse_batch
+from diffusion import Diffuser
 
 TIME_STEPS=1000
 
@@ -211,9 +212,13 @@ def main():
         seed=config.seed_pt,
     )
 
+    print("Initializing...This might take a while...")
+
     model = UNet(config.dim)
 
-    state = create_train_state(random.PRNGKey(config.seed_pt), config, model, config.image_size, create_learning_rate(config, base_learning_rate, 60))
+    learning_rate_fn = create_learning_rate(config, base_learning_rate, 60)
+
+    state = create_train_state(random.PRNGKey(config.seed_pt), config, model, config.image_size, learning_rate_fn)
     step_offset = int(state.step)
 
     train_loader = rebuild_data_loader_train(
@@ -222,7 +227,25 @@ def main():
     batch = next(iter(train_loader))
     batch = parse_batch(batch)
 
+    diff = Diffuser()
+
     print(batch['images'].shape)
+
+    p_train_step = jax.pmap(
+        functools.partial(train_step, learning_rate_fn=learning_rate_fn),
+        axis_name='batch'
+    )
+
+    for epoch in range(1):
+        print(f'Begin Trainning on epoch{epoch}')
+        for batch in train_loader:
+            batch = parse_batch(batch)
+            state, metrics = p_train_step(diff, state, batch['image'])
+
+            print(metrics)
+    
+    ## wait until all computation on XLA side is done
+    jax.random.normal(jax.random.PRNGKey(0), ()).block_until_ready()
 
 if __name__ == '__main__':
     main()
