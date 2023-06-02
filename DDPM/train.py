@@ -228,7 +228,7 @@ def main():
     batch = next(iter(train_loader))
     batch = parse_batch(batch)
 
-    diff = Diffuser()
+    state = jax_utils.replicate(state)
 
     print(batch['images'].shape)
 
