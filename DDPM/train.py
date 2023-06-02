@@ -240,7 +240,7 @@ def main():
         print(f'Begin Trainning on epoch{epoch}')
         for batch in train_loader:
             batch = parse_batch(batch)
-            state, metrics = p_train_step(diff, state, batch['image'])
+            state, metrics = p_train_step(diff, state, batch['images'])
 
             print(metrics)
     
