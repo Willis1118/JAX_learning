@@ -83,6 +83,7 @@ def initialize(key, image_size, model):
     def init(*args, **kwargs):
         return model.init(*args, **kwargs)
     variables = init({'params': key}, jnp.ones(input_shape), time=jnp.ones((input_shape[0],)))
+    print(variables)
     return variables['params'], variables['batch_stats']
 
 def create_learning_rate(
