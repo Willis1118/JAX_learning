@@ -219,7 +219,9 @@ def main():
 
     learning_rate_fn = create_learning_rate(config, base_learning_rate, 60)
 
-    state = create_train_state(random.PRNGKey(config.seed_pt), config, model, config.image_size, learning_rate_fn)
+    state_key, training_key = random.split(random.PRNGKey(config.seed_pt))
+
+    state = create_train_state(state_key, config, model, config.image_size, learning_rate_fn)
     step_offset = int(state.step)
 
     train_loader = rebuild_data_loader_train(
@@ -229,6 +231,7 @@ def main():
     batch = parse_batch(batch)
 
     state = jax_utils.replicate(state)
+    training_key = jax_utils.replicate(training_key)
 
     print(batch['images'].shape)
 
@@ -241,7 +244,7 @@ def main():
         print(f'Begin Trainning on epoch{epoch}')
         for batch in train_loader:
             batch = parse_batch(batch)
-            state, metrics = p_train_step(state, batch['images'])
+            state, metrics = p_train_step(training_key, state, batch['images'])
 
             print(metrics)
     
