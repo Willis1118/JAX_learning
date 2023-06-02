@@ -77,7 +77,7 @@ class Diffuser:
         
         sqrt_alphas_cumprod_t = self.extract(self.sqrt_alphas_cumprod, t, x_start.shape)
         sqrt_one_minue_alphas_cumprod_t = self.extract(
-            self.sqrt_one_minue_alphas_cumprod,
+            self.sqrt_one_minus_alphas_cumprod,
             t,
             x_start.shape
         )
