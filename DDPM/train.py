@@ -133,19 +133,14 @@ def train_step(key, state, batch, learning_rate_fn):
 
         ## custom apply function; usually just model apply
 
-        print(state.apply_fn(
-            {'params': params},
-            noisy_x,
-            time=t,
-        ))
-        output, new_model_state = state.apply_fn(
+        output = state.apply_fn(
             {'params': params},
             noisy_x,
             time=t,
         )
 
         loss = jnp.mean((output - noise) ** 2)
-        return loss, (new_model_state, output, loss)
+        return loss, (output, loss)
     
     step = state.step
     lr = learning_rate_fn(step)
@@ -153,7 +148,7 @@ def train_step(key, state, batch, learning_rate_fn):
     grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
     aux, grads = grad_fn(state.params)
     grads = lax.pmean(grads, axis_name='batch')
-    new_model_state, output, loss = aux[1]
+    output, loss = aux[1]
     loss = lax.pmean(loss, axis_name='batch')
     
     ## apply updates to params
