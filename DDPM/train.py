@@ -247,11 +247,14 @@ def main():
 
     train_steps = 0
     log_every = 100
+    loss = 0
 
     for epoch in range(config.num_epochs):
         print(f'Begin Trainning on epoch{epoch}')
         for batch in train_loader:
             batch = parse_batch(batch)
+
+            ## state updated internally by TrainState.apply_gradients
             state, metrics = p_train_step(training_key, state, batch['images'])
 
             train_steps += 1
