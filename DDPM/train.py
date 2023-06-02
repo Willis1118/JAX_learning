@@ -217,6 +217,9 @@ def main():
 
     train_loader = rebuild_data_loader_train(
         train_dataset, train_sampler, config.batch_size // n_devices, config, offset_seed=step_offset)
+    
+    batch, label = next(iter(train_loader))
+    print(batch.shape, label)
 
 if __name__ == '__main__':
     main()
