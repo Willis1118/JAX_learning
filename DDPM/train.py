@@ -83,8 +83,7 @@ def initialize(key, image_size, model):
     def init(*args, **kwargs):
         return model.init(*args, **kwargs)
     variables = init({'params': key}, jnp.ones(input_shape), time=jnp.ones((input_shape[0],)))
-    print(variables.keys())
-    return variables['params'], variables['batch_stats']
+    return variables['params']
 
 def create_learning_rate(
     config: ml_collections.ConfigDict,
@@ -129,9 +128,8 @@ def train_step(key, diff, state, batch, learning_rate_fn):
 
         ## custom apply function; usually just model apply
         output, new_model_state = state.apply_fn(
-            {'params': params, 'batch_stats': state.batch_stats},
+            {'params': params},
             noisy_x,
-            mutable=['batch_stats']
         )
 
         loss = jnp.mean((output - noise) ** 2)
@@ -146,12 +144,9 @@ def train_step(key, diff, state, batch, learning_rate_fn):
     new_model_state, output, loss = aux[1]
     
     ## apply updates to params
-    new_state = state.apply_gradients(grads=grads, batch_stats=new_model_state['batch_stats']) # --> auto grad & update state
+    new_state = state.apply_gradients(grads=grads) # --> auto grad & update state
 
     return new_state, loss
-
-class TrainState(train_state.TrainState):
-    batch_stats: Any
 
 def restore_ckpt(state, workdir):
     return checkpoints.restore_checkpoint(workdir, state)
@@ -176,7 +171,7 @@ def create_train_state(
     '''
         instantiate initial training state
     '''
-    params, batch_stats = initialize(rng, image_size, model)
+    params = initialize(rng, image_size, model)
     tx = optax.sgd(
         learning_rate=learnng_rate_fn,
         momentum=config.momentum,
@@ -186,7 +181,6 @@ def create_train_state(
         apply_fn=model.apply,
         params=params,
         tx=tx,
-        batch_stats=batch_stats,
     )
 
     return state
