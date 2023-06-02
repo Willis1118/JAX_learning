@@ -120,7 +120,7 @@ def train_step(key, state, batch, learning_rate_fn):
 
     key, noise_key, t_key, q_key = random.split(key, num=4)
 
-    
+
     def loss_fn(params):
         '''
             loss function for training
@@ -135,6 +135,7 @@ def train_step(key, state, batch, learning_rate_fn):
         output, new_model_state = state.apply_fn(
             {'params': params},
             noisy_x,
+            time=t,
         )
 
         loss = jnp.mean((output - noise) ** 2)
