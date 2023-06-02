@@ -32,6 +32,7 @@ from einops import rearrange
 
 from torchloader_util import build_transform
 from model import UNet
+from torch2jax import parse_batch
 
 TIME_STEPS=1000
 
@@ -216,10 +217,14 @@ def main():
     step_offset = int(state.step)
 
     train_loader = rebuild_data_loader_train(
-        train_dataset, train_sampler, config.batch_size // n_devices, config, offset_seed=step_offset)
+        train_dataset, train_sampler, config.batch_size // jax.process_count(), config, offset_seed=step_offset)
     
     batch, label = next(iter(train_loader))
     print(batch.shape, label)
+
+    batch = parse_batch(batch)
+
+    print(batch.shape)
 
 if __name__ == '__main__':
     main()
