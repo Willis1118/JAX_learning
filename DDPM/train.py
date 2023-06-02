@@ -140,7 +140,7 @@ def train_step(key, state, batch, learning_rate_fn):
     step = state.step
     lr = learning_rate_fn(step)
 
-    grad_fn = jax.grad_and_value(loss_fn, has_aux=True)
+    grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
     aux, grads = grad_fn(state.params)
     grads = lax.pmean(grads, axis_name='batch')
     new_model_state, output, loss = aux[1]
