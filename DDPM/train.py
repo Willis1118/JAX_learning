@@ -80,9 +80,9 @@ def initialize(key, image_size, model):
     '''
     input_shape = (1, image_size, image_size, 3)
     @jax.jit
-    def init(*args):
-        return model.init(*args)
-    variables = init({'params': key}, jnp.ones(input_shape), jnp.ones((input_shape[0],)))
+    def init(*args, **kwargs):
+        return model.init(*args, **kwargs)
+    variables = init({'params': key}, jnp.ones(input_shape), time=jnp.ones((input_shape[0],)))
     return variables['params'], variables['batch_stats']
 
 def create_learning_rate(
