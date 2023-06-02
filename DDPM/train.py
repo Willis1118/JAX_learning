@@ -132,6 +132,12 @@ def train_step(key, state, batch, learning_rate_fn):
         noisy_x = Diffuser().q_sample(q_key, batch, t, noise=noise)
 
         ## custom apply function; usually just model apply
+
+        print(state.apply_fn(
+            {'params': params},
+            noisy_x,
+            time=t,
+        ))
         output, new_model_state = state.apply_fn(
             {'params': params},
             noisy_x,
