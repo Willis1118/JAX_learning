@@ -222,7 +222,7 @@ def main():
     batch = next(iter(train_loader))
     batch = parse_batch(batch)
 
-    print(batch)
+    print(batch['images'].shape)
 
 if __name__ == '__main__':
     main()
