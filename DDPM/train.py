@@ -5,6 +5,7 @@
 import functools
 import time
 from typing import Any
+import random as _random
 
 from absl import logging
 from clu import metric_writers
@@ -21,10 +22,44 @@ import jax.numpy as jnp
 from jax import random
 import ml_collections
 import optax
+import numpy as np
+
+import torch
+from torch.utils.data import DataLoader
+from torchvision.datasets import CIFAR10
 
 from einops import rearrange
 
+from torchloader_util import build_transform
+from model import UNet
+
 TIME_STEPS=1000
+
+def seed_worker(worker_id, global_seed, offset_seed=0):
+    # worker_seed = torch.initial_seed() % 2**32 + jax.process_index() + offset_seed
+    worker_seed = (global_seed + worker_id +
+                   jax.process_index() + offset_seed) % 2**32
+    np.random.seed(worker_seed)
+    _random.seed(worker_seed)
+    torch.manual_seed(worker_seed)
+
+
+def rebuild_data_loader_train(dataset_train, sampler_train, local_batch_size, config, offset_seed):
+    rng_torch = torch.Generator()
+    rng_torch.manual_seed(offset_seed)
+    data_loader_train = torch.utils.data.DataLoader(
+        dataset_train, sampler=sampler_train,
+        batch_size=local_batch_size,
+        num_workers=config.torchload.num_workers,
+        pin_memory=True,
+        drop_last=True,
+        generator=rng_torch,
+        worker_init_fn=functools.partial(
+            seed_worker, offset_seed=offset_seed, global_seed=config.seed_pt),
+        persistent_workers=True,
+        timeout=1800.,
+    )
+    return data_loader_train
 
 def create_model(*, model_cls, half_precision: bool, **kwargs):
     platform = jax.local_devices()[0].platform
@@ -74,6 +109,8 @@ def create_learning_rate(
         boundaries=[config.warmup_epochs * steps_per_epoch]
     )
 
+    return schedule_fn
+
 def train_step(key, diff, state, batch, learning_rate_fn):
     '''
         perform a single training step
@@ -107,6 +144,7 @@ def train_step(key, diff, state, batch, learning_rate_fn):
     grads = lax.pmean(grads, axis_name='batch')
     new_model_state, output, loss = aux[1]
     
+    ## apply updates to params
     new_state = state.apply_gradients(grads=grads, batch_stats=new_model_state['batch_stats']) # --> auto grad & update state
 
     return new_state, loss
@@ -124,6 +162,7 @@ def save_ckpt(state, workdir):
     checkpoints.save_checkpoint_multiprocess(workdir, state, step, keep=3)
 
 # pmeam only works inside pmap; so wrapped it up here
+# this function will take average of inputs across all devices
 cross_replica_mean = jax.pmap(lambda x: jax.pmean(x, 'x'), 'x')
 
 def create_train_state(
@@ -150,4 +189,39 @@ def create_train_state(
     )
 
     return state
+
+def main():
+    n_devices = jax.local_device_count()
+    config = ml_collections.ConfigDict()
+    config.momentum = 0
+    config.torchload.num_workers = 0
+    config.seed_pt = 42
+    config.image_size = 32
+    config.batch_size = 128
+    config.momentum = 0
+    config.dim = 128
+    config.warmup_epochs = 5
+    config.num_epochs = 20
+
+    base_learning_rate = 0.001 * config.batch_size / 256
+
+    transform = build_transform(config.image_size)
+    train_dataset = CIFAR10(root='train_cifar', train=True, transform=transform, download=True)
+    train_sampler = torch.utils.data.DistributedSampler(
+        train_dataset,
+        num_replicas=jax.process_count(),
+        rank=jax.process_index(),
+        shuffle=True,
+        seed=config.seed_pt,
+    )
+
+    model = UNet(config.dim)
+
+    state = create_train_state(random.PRNGKey(config.seed_pt), config, model, config.image_size, create_learning_rate(config, base_learning_rate, 60))
+    step_offset = int(state.step)
+
+    train_loader = rebuild_data_loader_train(
+        train_dataset, train_sampler, config.batch_size // n_devices, config, offset_seed=step_offset)
+
+
 
