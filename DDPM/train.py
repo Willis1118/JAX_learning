@@ -50,7 +50,7 @@ def rebuild_data_loader_train(dataset_train, sampler_train, local_batch_size, co
     data_loader_train = torch.utils.data.DataLoader(
         dataset_train, sampler=sampler_train,
         batch_size=local_batch_size,
-        num_workers=config.torchload.num_workers,
+        num_workers=config.num_workers,
         pin_memory=True,
         drop_last=True,
         generator=rng_torch,
@@ -194,7 +194,7 @@ def main():
     n_devices = jax.local_device_count()
     config = ml_collections.ConfigDict()
     config.momentum = 0
-    config.torchload.num_workers = 0
+    config.num_workers = 0
     config.seed_pt = 42
     config.image_size = 32
     config.batch_size = 128
