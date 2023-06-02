@@ -203,8 +203,8 @@ def main():
     config.batch_size = 128
     config.momentum = 0
     config.dim = 128
-    config.warmup_epochs = 5
-    config.num_epochs = 20
+    config.warmup_epochs = 20
+    config.num_epochs = 200
 
     base_learning_rate = 0.001 * config.batch_size / 256
 
@@ -245,13 +245,17 @@ def main():
         axis_name='batch'
     )
 
-    for epoch in range(1):
+    train_steps = 0
+
+    for epoch in range(config.num_epochs):
         print(f'Begin Trainning on epoch{epoch}')
         for batch in train_loader:
             batch = parse_batch(batch)
             state, metrics = p_train_step(training_key, state, batch['images'])
 
-            print(metrics)
+            train_steps += 1
+
+            print(f'Steps: {train_steps}, Loss: {metrics[0]}')
     
     ## wait until all computation on XLA side is done
     jax.random.normal(jax.random.PRNGKey(0), ()).block_until_ready()
