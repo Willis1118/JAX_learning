@@ -219,12 +219,10 @@ def main():
     train_loader = rebuild_data_loader_train(
         train_dataset, train_sampler, config.batch_size // jax.process_count(), config, offset_seed=step_offset)
     
-    batch, label = next(iter(train_loader))
-    print(batch.shape, label)
-
+    batch = next(iter(train_loader))
     batch = parse_batch(batch)
 
-    print(batch.shape)
+    print(batch)
 
 if __name__ == '__main__':
     main()
