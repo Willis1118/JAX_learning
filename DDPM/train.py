@@ -246,6 +246,7 @@ def main():
     )
 
     train_steps = 0
+    log_every = 100
 
     for epoch in range(config.num_epochs):
         print(f'Begin Trainning on epoch{epoch}')
@@ -254,8 +255,15 @@ def main():
             state, metrics = p_train_step(training_key, state, batch['images'])
 
             train_steps += 1
+            loss += metrics[0]
 
-            print(f'Steps: {train_steps}, Loss: {metrics[0]}')
+            if train_steps % log_every == 0 and train_steps > 0:
+
+                print(f'Steps: {train_steps}, Loss: {loss / log_every}')
+            
+            loss = 0
+
+
     
     ## wait until all computation on XLA side is done
     jax.random.normal(jax.random.PRNGKey(0), ()).block_until_ready()
