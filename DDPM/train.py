@@ -117,12 +117,15 @@ def train_step(key, state, batch, learning_rate_fn):
     '''
         perform a single training step
     '''
+
+    key, noise_key, t_key, q_key = random.split(key, num=4)
+
+    
     def loss_fn(params):
         '''
             loss function for training
         '''
 
-        key, noise_key, t_key, q_key = random.split(key, num=4)
         noise = random.normal(noise_key, batch.shape)
         t = random.randint(t_key, (batch.shape[0],), 0, TIME_STEPS)
 
