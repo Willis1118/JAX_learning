@@ -177,7 +177,7 @@ def create_train_state(
         momentum=config.momentum,
         nesterov=True,
     )
-    state = TrainState.create(
+    state = train_state.TrainState.create(
         apply_fn=model.apply,
         params=params,
         tx=tx,
