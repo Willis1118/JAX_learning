@@ -113,7 +113,7 @@ def create_learning_rate(
 
     return schedule_fn
 
-def train_step(key, diff, state, batch, learning_rate_fn):
+def train_step(key, state, batch, learning_rate_fn):
     '''
         perform a single training step
     '''
@@ -126,7 +126,7 @@ def train_step(key, diff, state, batch, learning_rate_fn):
         noise = random.normal(noise_key, batch.shape)
         t = random.randint(t_key, (batch.shape[0],), 0, TIME_STEPS)
 
-        noisy_x = diff.q_sample(q_key, batch, t, noise=noise)
+        noisy_x = Diffuser().q_sample(q_key, batch, t, noise=noise)
 
         ## custom apply function; usually just model apply
         output, new_model_state = state.apply_fn(
@@ -144,6 +144,7 @@ def train_step(key, diff, state, batch, learning_rate_fn):
     aux, grads = grad_fn(state.params)
     grads = lax.pmean(grads, axis_name='batch')
     new_model_state, output, loss = aux[1]
+    loss = lax.pmean(loss, axis_name='batch')
     
     ## apply updates to params
     new_state = state.apply_gradients(grads=grads) # --> auto grad & update state
@@ -240,7 +241,7 @@ def main():
         print(f'Begin Trainning on epoch{epoch}')
         for batch in train_loader:
             batch = parse_batch(batch)
-            state, metrics = p_train_step(diff, state, batch['images'])
+            state, metrics = p_train_step(state, batch['images'])
 
             print(metrics)
     
