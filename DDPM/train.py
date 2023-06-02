@@ -189,7 +189,7 @@ def main():
     n_devices = jax.local_device_count()
     config = ml_collections.ConfigDict()
     config.momentum = 0
-    config.num_workers = 0
+    config.num_workers = n_devices
     config.seed_pt = 42
     config.image_size = 32
     config.batch_size = 128
