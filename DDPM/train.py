@@ -224,7 +224,7 @@ def main():
 
     learning_rate_fn = create_learning_rate(config, base_learning_rate, 60)
 
-    state_key, training_key = random.split(random.PRNGKey(config.seed_pt))
+    state_key, training_key, sample_key = random.split(random.PRNGKey(config.seed_pt), num=3)
 
     state = create_train_state(state_key, config, model, config.image_size, learning_rate_fn)
     step_offset = int(state.step)
@@ -245,8 +245,14 @@ def main():
         axis_name='batch'
     )
 
+    p_sample = jax.pmap(
+        functools.partial(Diffuser().sample, key=sample_key, model=model, image_size=config.image_size),
+        axis_name='batch'
+    )
+
     train_steps = 0
     log_every = 100
+    sample_every = 2000
     loss = 0
 
     for epoch in range(config.num_epochs):
@@ -263,6 +269,12 @@ def main():
             if train_steps % log_every == 0 and train_steps > 0:
 
                 print(f'Steps: {train_steps}, Loss: {loss / log_every}')
+            
+            if train_steps % sample_every == 0 and train_steps > 0:
+                
+                imgs = p_sample(batch)
+
+                print(imgs.shape)
             
             loss = 0
 
