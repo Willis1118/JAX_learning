@@ -267,7 +267,7 @@ def main():
 
                 print('Sampling Begin')
                 
-                imgs = Diffuser().p_sample_loop(key=sample_key, params={'params': state.params}, shape=batch['images'].shape)
+                imgs = Diffuser().p_sample_loop(key=sample_key, params={'params': state.params}, shape=(4,4,32,32,3))
 
                 print('Sampling Done ', imgs)
             
