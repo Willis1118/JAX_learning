@@ -135,7 +135,7 @@ class Diffuser:
 
         params = jax.lax.stop_gradient(params)
 
-        n, b = shape[0], shape[1]
+        n, b = shape[1], shape[0]
         key, noise_key = random.split(key)
         img = random.normal(noise_key, shape)
 
