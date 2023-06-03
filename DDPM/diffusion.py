@@ -150,8 +150,6 @@ class Diffuser:
 
         print('Sample Shape: ', shape)
 
-        params = jax_utils.replicate(params)
-
         imgs = []
 
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
