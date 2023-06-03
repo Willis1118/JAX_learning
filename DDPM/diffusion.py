@@ -108,7 +108,7 @@ class Diffuser:
         return loss
     
     # @partial(jax.jit, static_argnums=(5,))
-    def p_sample(self, key, model, params, x, t, t_index):
+    def p_sample(self, key, params, x, t, t_index, *, model):
         betas_t = self.extract(self.betas, t, x.shape)
         sqrt_one_minus_alphas_cumprod_t = self.extract(
             self.sqrt_one_minus_alphas_cumprod, t, x.shape
@@ -149,7 +149,7 @@ class Diffuser:
             key, sample_key = random.split(key)
             sample_key = jax_utils.replicate(sample_key)
             
-            img = pp_sample(key=sample_key, model=model, params=params, x=img, t=jnp.full((n,b), i, dtype=jnp.int32), t_index=i)
+            img = pp_sample(sample_key, params, img, jnp.full((n,b), i, dtype=jnp.int32), i)
             imgs.append(jax.device_get(img))
         
         return imgs
