@@ -179,7 +179,6 @@ class UNet(nn.Module):
     
     @nn.compact
     def __call__(self, x, time):
-        b, c, h, w = x.shape
 
         init_dim = default(self.init_dim, self.dim // 3 * 2)
         init_conv = nn.Conv(init_dim, (7,7), padding=3)
