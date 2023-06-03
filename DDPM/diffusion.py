@@ -152,7 +152,7 @@ class Diffuser:
 
         imgs = []
 
-        # sample_key = jax_utils.replicate(sample_key)
+        sample_key = jax_utils.replicate(sample_key)
 
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
             key, sample_key = random.split(key)
