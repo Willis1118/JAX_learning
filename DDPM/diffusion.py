@@ -149,7 +149,7 @@ class Diffuser:
 
         imgs = []
 
-        
+        params['params'] = params['params'][0]
         # sample_key = jax_utils.replicate(sample_key)
 
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):

@@ -153,6 +153,7 @@ def train_step(key, state, batch, learning_rate_fn):
     
     ## apply updates to params
     new_state = state.apply_gradients(grads=grads) # --> auto grad & update state
+    new_state = lax.pmean(new_state, axis_name='batch')
 
     return new_state, loss
 
