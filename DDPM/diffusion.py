@@ -110,6 +110,7 @@ class Diffuser:
     
     # @partial(jax.jit, static_argnums=(5,))
     def p_sample(self, key, params, x, t, t_index):
+        print(t.shape, x.shape)
         betas_t = self.extract(self.betas, t, x.shape)
         sqrt_one_minus_alphas_cumprod_t = self.extract(
             self.sqrt_one_minus_alphas_cumprod, t, x.shape
