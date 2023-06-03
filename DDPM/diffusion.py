@@ -139,17 +139,20 @@ class Diffuser:
         img = random.normal(noise_key, shape)
 
         pp_sample=jax.pmap(
-            functools.partial(self.p_sample, model=model),
+            self.p_sample,
             axis_name='batch',
             static_broadcasted_argnums=(-1,)
         )
+
+        model = jax_utils.replicate(model)
 
         imgs = []
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
             key, sample_key = random.split(key)
             sample_key = jax_utils.replicate(sample_key)
             t_index = jax_utils.replicate(i)
-            img = pp_sample(key=sample_key, params=params, x=img, t=jnp.full((n,b), i, dtype=jnp.int32), t_index=t_index)
+            
+            img = pp_sample(key=sample_key, model=model, params=params, x=img, t=jnp.full((n,b), i, dtype=jnp.int32), t_index=t_index)
             imgs.append(jax.device_get(img))
         
         return imgs
