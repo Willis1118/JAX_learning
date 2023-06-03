@@ -8,8 +8,6 @@ from typing import Any
 import random as _random
 
 from absl import logging
-from clu import metric_writers
-from clu import periodic_actions
 import flax
 from flax import jax_utils
 from flax.training import checkpoints
