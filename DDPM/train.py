@@ -272,7 +272,7 @@ def main():
             
             if train_steps % sample_every == 0 and train_steps > 0:
                 
-                imgs = p_sample(batch)
+                imgs = p_sample(state.params)
 
                 print(imgs.shape)
             
