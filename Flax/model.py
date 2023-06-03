@@ -42,6 +42,8 @@ model = MLP([16,8,1]) # --> calling data class
 x = random.normal(x_key, (4,4))
 params = model.init(init_key, x)
 
+print(params)
+
 y = model.apply(params, x)
 
 print(jax.tree_map(
