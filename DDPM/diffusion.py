@@ -4,11 +4,13 @@
 
 import jax
 from jax import lax, random, numpy as jnp
+from flax import jax_utils
 
 from functools import partial
 from tqdm.auto import tqdm
 
 import numpy as np
+import functools
 
 ## custom modules
 
@@ -62,7 +64,6 @@ class Diffuser:
     @staticmethod
     def extract(a, t, x_shape):
         batch = x_shape[0]
-        print(t)
         out = np.take_along_axis(a, t, axis=-1)
         return jnp.array(np.reshape(out, (batch, *((1,) * (len(x_shape) - 1)))))
     
@@ -130,14 +131,24 @@ class Diffuser:
     
     # @partial(jax.jit, static_argnums=(3,))
     def p_sample_loop(self, key, model, params, shape):
-        b = shape[0]
+
+        params = jax.lax.stop_gradient(params)
+
+        n, b = shape[0], shape[1]
         key, noise_key = random.split(key)
         img = random.normal(noise_key, shape)
+
+        pp_sample=jax.pmap(
+            functools.partial(self.p_sample, model=model),
+            axis_name='batch'
+        )
 
         imgs = []
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
             key, sample_key = random.split(key)
-            img = self.p_sample(sample_key, model, params, img, jnp.full((b,), i, dtype=jnp.int32), i)
+            sample_key = jax_utils.replicate(sample_key)
+            t_index = jax_utils.replicate(i)
+            img = pp_sample(key=sample_key, params=params, x=img, t=jnp.full((n,b), i, dtype=jnp.int32), t_index=t_index)
             imgs.append(jax.device_get(img))
         
         return imgs

@@ -243,11 +243,6 @@ def main():
         axis_name='batch'
     )
 
-    p_sample = jax.pmap(
-        functools.partial(Diffuser().sample, key=sample_key, model=model, image_size=config.image_size),
-        axis_name='batch'
-    )
-
     train_steps = 0
     log_every = 100
     sample_every = 100
@@ -269,10 +264,12 @@ def main():
                 print(f'Steps: {train_steps}, Loss: {loss / log_every}')
             
             if train_steps % sample_every == 0 and train_steps > 0:
-                
-                imgs = p_sample(params={'params': state.params})
 
-                print(imgs.shape)
+                print('Sampling Begin')
+                
+                imgs = Diffuser().p_sample_loop(key=sample_key, model=model, params={'params': state.params}, shape=batch.shape)
+
+                print('Sampling Done ', imgs)
             
             loss = 0
 
