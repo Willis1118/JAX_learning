@@ -153,7 +153,6 @@ def train_step(key, state, batch, learning_rate_fn):
     
     ## apply updates to params
     new_state = state.apply_gradients(grads=grads) # --> auto grad & update state
-    new_state = lax.pmean(new_state, axis_name='batch')
 
     return new_state, loss
 
@@ -268,7 +267,7 @@ def main():
 
                 print('Sampling Begin')
                 
-                imgs = Diffuser().p_sample_loop(key=sample_key, params={'params': state.params}, shape=(16,32,32,3))
+                imgs = Diffuser().p_sample_loop(key=sample_key, params={'params': state[0].params}, shape=(16,32,32,3))
 
                 print('Sampling Done ', imgs)
             
