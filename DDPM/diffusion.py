@@ -145,6 +145,8 @@ class Diffuser:
             static_broadcasted_argnums=(4,)
         )
 
+        print('Sample Shape: ', shape)
+
         imgs = []
 
         key, sample_key = random.split(key)
