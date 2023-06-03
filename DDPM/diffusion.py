@@ -13,6 +13,7 @@ import numpy as np
 import functools
 
 ## custom modules
+from model import UNet
 
 class VarScheduler:
     def __init__(self, timesteps=1000):
@@ -108,7 +109,7 @@ class Diffuser:
         return loss
     
     # @partial(jax.jit, static_argnums=(5,))
-    def p_sample(self, key, params, x, t, t_index, *, model):
+    def p_sample(self, key, params, x, t, t_index):
         betas_t = self.extract(self.betas, t, x.shape)
         sqrt_one_minus_alphas_cumprod_t = self.extract(
             self.sqrt_one_minus_alphas_cumprod, t, x.shape
@@ -118,7 +119,7 @@ class Diffuser:
         # Equation 11 in the paper
         # Use our model (noise predictor) to predict the mean
         model_mean = sqrt_recip_alphas_t * (
-            x - betas_t * model.apply(params, x, time=t) / sqrt_one_minus_alphas_cumprod_t
+            x - betas_t * UNet().apply(params, x, time=t) / sqrt_one_minus_alphas_cumprod_t
         )
 
         if t_index == 0:
@@ -130,7 +131,7 @@ class Diffuser:
             return model_mean + jnp.sqrt(posterior_variance_t) * noise 
     
     # @partial(jax.jit, static_argnums=(3,))
-    def p_sample_loop(self, key, model, params, shape):
+    def p_sample_loop(self, key, params, shape):
 
         params = jax.lax.stop_gradient(params)
 
@@ -139,12 +140,10 @@ class Diffuser:
         img = random.normal(noise_key, shape)
 
         pp_sample=jax.pmap(
-            functools.partial(self.p_sample, model=model),
+            self.p_sample,
             axis_name='batch',
             static_broadcasted_argnums=(-1,)
         )
-
-        params = jax_utils.replicate(params)
 
         imgs = []
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
