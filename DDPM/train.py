@@ -270,7 +270,7 @@ def main():
             
             if train_steps % sample_every == 0 and train_steps > 0:
                 
-                imgs = p_sample(params=state.params)
+                imgs = p_sample(params={'params': state.params})
 
                 print(imgs.shape)
             
