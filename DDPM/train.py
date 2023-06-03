@@ -238,8 +238,6 @@ def main():
     state = jax_utils.replicate(state)
     training_key = jax_utils.replicate(training_key)
 
-    print(batch['images'].shape)
-
     p_train_step = jax.pmap(
         functools.partial(train_step, learning_rate_fn=learning_rate_fn),
         axis_name='batch'
@@ -272,7 +270,7 @@ def main():
             
             if train_steps % sample_every == 0 and train_steps > 0:
                 
-                imgs = p_sample(state.params)
+                imgs = p_sample(params=state.params)
 
                 print(imgs.shape)
             
