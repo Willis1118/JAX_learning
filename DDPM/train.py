@@ -245,7 +245,7 @@ def main():
 
     train_steps = 0
     log_every = 100
-    sample_every = 100
+    sample_every = 1
     loss = 0
 
     for epoch in range(config.num_epochs):
