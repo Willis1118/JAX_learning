@@ -119,7 +119,7 @@ class Diffuser:
         # Equation 11 in the paper
         # Use our model (noise predictor) to predict the mean
         model_mean = sqrt_recip_alphas_t * (
-            x - betas_t * UNet().apply(params, x, time=t) / sqrt_one_minus_alphas_cumprod_t
+            x - betas_t * UNet(dim=128).apply(params, x, time=t) / sqrt_one_minus_alphas_cumprod_t
         )
 
         if t_index == 0:
