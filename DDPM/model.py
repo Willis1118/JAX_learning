@@ -25,7 +25,6 @@ from functools import partial
 
 ## custom module importing
 from helpers import exists, default, Residual, PreNorm, Downsample, Upsample
-from diffusion import Diffuser
 
 ### Time Positional Embedding ###
 class PositionalEmbedding(nn.Module):
@@ -241,24 +240,6 @@ class UNet(nn.Module):
         x = nn.Conv(out_dim, (1,1))(x)
 
         return x
-
-if __name__ == '__main__':
-    model = UNet(dim=128)
-
-    key, x_key, t_key, init_key = random.split(random.PRNGKey(0), num=4)
-
-    x = random.normal(x_key, (10,128,128,3))
-    t = random.uniform(t_key, (10,))
-
-    y, params = model.init_with_output(init_key, x, time=t)
-
-    print('params: ',jax.tree_map(jnp.shape, params))
-    print('output: ', y.shape)
-
-    key, sample_key = random.split(key)
-
-    diff = Diffuser()
-    imgs = diff.sample(sample_key, model, 128)
 
 
 
