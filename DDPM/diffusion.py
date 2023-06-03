@@ -144,6 +144,8 @@ class Diffuser:
             static_broadcasted_argnums=(-1,)
         )
 
+        params = jax_utils.replicate(params)
+
         imgs = []
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
             key, sample_key = random.split(key)
