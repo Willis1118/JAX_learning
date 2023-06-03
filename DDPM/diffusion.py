@@ -135,14 +135,17 @@ class Diffuser:
 
         params = jax.lax.stop_gradient(params)
 
-        n, b = shape[1], shape[0]
+        n, b = shape[0], shape[1]
         key, noise_key = random.split(key)
         img = random.normal(noise_key, shape)
 
+        def _sample_fn(key, t, t_index):
+            return self.p_sample(key, params, img, t, t_index)
+
         pp_sample=jax.pmap(
-            self.p_sample,
+            _sample_fn,
             axis_name='batch',
-            static_broadcasted_argnums=(4,)
+            static_broadcasted_argnums=(2,)
         )
 
         print('Sample Shape: ', shape)
@@ -153,7 +156,7 @@ class Diffuser:
 
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
             key, sample_key = random.split(key)
-            img = self.p_sample(sample_key, params, img, jnp.full((b), i, dtype=jnp.int32), i)
+            img = pp_sample(sample_key, jnp.full((n,b), i, dtype=jnp.int32), i)
             imgs.append(jax.device_get(img))
         
         return imgs
