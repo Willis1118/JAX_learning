@@ -150,8 +150,9 @@ class Diffuser:
         for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
             key, sample_key = random.split(key)
             sample_key = jax_utils.replicate(sample_key)
+            t_index = jax_utils.replicate(i)
             
-            img = pp_sample(sample_key, params, img, jnp.full((n,b), i, dtype=jnp.int32), i)
+            img = pp_sample(sample_key, params, img, jnp.full((n,b), i, dtype=jnp.int32), t_index)
             imgs.append(jax.device_get(img))
         
         return imgs
