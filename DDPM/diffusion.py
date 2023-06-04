@@ -168,9 +168,9 @@ class Diffuser:
         def sample_loop_fn(t_index, img):
             # going in reverse
             t_index = 1000 - t_index - 1
-            rng = [sample_keys[t_index]] * 4
+            rng = [sample_keys[t_index]] * n
             t = jnp.full((n,b,), t_index, dtype=jnp.int32)
-            img = self.p_sample(rng, state, params, img, t, t_index)
+            img = pp_sample(rng, state, params, img, t, [t_index] * n)
             
             return img
 
