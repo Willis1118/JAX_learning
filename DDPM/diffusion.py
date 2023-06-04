@@ -142,13 +142,13 @@ class Diffuser:
         key, noise_key = random.split(key)
         img = random.normal(noise_key, shape)
 
-        def _sample_fn(key, t, t_index):
-            return self.p_sample(key, params, img, t, t_index)
+        def _sample_fn(key, x, t, t_index):
+            return self.p_sample(key, params, x, t, t_index)
 
         pp_sample=jax.pmap(
             _sample_fn,
             axis_name='batch',
-            static_broadcasted_argnums=(2,)
+            static_broadcasted_argnums=(3,)
         )
 
         print('Sample Shape: ', shape)
@@ -160,7 +160,7 @@ class Diffuser:
             key, sample_key = random.split(key)
             sample_key = jax_utils.replicate(sample_key)
 
-            img = pp_sample(sample_key, jnp.full((n,b,), i, dtype=jnp.int32), i)
+            img = pp_sample(sample_key, img, jnp.full((n,b,), i, dtype=jnp.int32), i)
             imgs.append(jax.device_get(img))
         
         return imgs
