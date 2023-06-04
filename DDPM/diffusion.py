@@ -135,7 +135,7 @@ class Diffuser:
         posterior_variance_t = self.extract(self.posterior_variance, t, x.shape)
         noise = random.normal(key, x.shape)
         # Algorithm 2 line 4:
-        return model_mean + jnp.sqrt(posterior_variance_t) * noise * self.indicator(t_index)
+        return model_mean + jnp.sqrt(posterior_variance_t) * noise * self.indicator(t_index[0])
     
     # @partial(jax.jit, static_argnums=(3,))
     def p_sample_loop(self, key, state, shape):
