@@ -159,7 +159,7 @@ class Diffuser:
             static_broadcasted_argnums=(4,)
         )
 
-        print('Sample Shape: ', shape)
+        print('Sample Shape: ', shape, n)
 
         imgs = []
 
