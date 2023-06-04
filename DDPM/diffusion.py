@@ -110,7 +110,7 @@ class Diffuser:
     
     # @partial(jax.jit, static_argnums=(5,))
     def p_sample(self, key, state, params, x, t, t_index):
-        print(t.shape, x.shape)
+
         betas_t = self.extract(self.betas, t, x.shape)
         sqrt_one_minus_alphas_cumprod_t = self.extract(
             self.sqrt_one_minus_alphas_cumprod, t, x.shape
@@ -120,13 +120,9 @@ class Diffuser:
         # Equation 11 in the paper
         # Use our model (noise predictor) to predict the mean
 
-        print('before model apply')
-
         model_mean = sqrt_recip_alphas_t * (
             x - betas_t * state.apply_fn({'params': params}, x, time=t) / sqrt_one_minus_alphas_cumprod_t
         )
-
-        print('after model apply')
 
         if t_index == 0:
             return model_mean
@@ -164,6 +160,7 @@ class Diffuser:
             sample_key = jax_utils.replicate(sample_key)
 
             img = pp_sample(sample_key, params, img, jnp.full((n,b,), i, dtype=jnp.int32), i)
+
             imgs.append(jax.device_get(img))
         
         return imgs
