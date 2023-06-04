@@ -137,6 +137,7 @@ class Diffuser:
     def p_sample_loop(self, key, params, shape):
 
         params = jax.lax.stop_gradient(params)
+        params = jax_utils.replicate(params)
 
         n, b = shape[0], shape[1]
         key, noise_key = random.split(key)
