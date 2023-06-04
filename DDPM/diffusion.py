@@ -66,8 +66,6 @@ class Diffuser:
     def extract(a, t, x_shape):
         batch = x_shape[0]
         out = jnp.take_along_axis(a, t, axis=-1)
-        print(out.shape)
-        print((batch, *((1,) * (len(x_shape) - 1))))
         return jnp.array(jnp.reshape(out, (batch, *((1,) * (len(x_shape) - 1)))))
     
     # @partial(jax.jit, static_argnums=(4,))
@@ -111,7 +109,7 @@ class Diffuser:
         return loss
     
     # @partial(jax.jit, static_argnums=(5,))
-    def p_sample(self, key, params, x, t, t_index):
+    def p_sample(self, key, state, params, x, t, t_index):
         print(t.shape, x.shape)
         betas_t = self.extract(self.betas, t, x.shape)
         sqrt_one_minus_alphas_cumprod_t = self.extract(
@@ -121,9 +119,14 @@ class Diffuser:
 
         # Equation 11 in the paper
         # Use our model (noise predictor) to predict the mean
+
+        print('before model apply')
+
         model_mean = sqrt_recip_alphas_t * (
-            x - betas_t * UNet(dim=128).apply(params, x, time=t) / sqrt_one_minus_alphas_cumprod_t
+            x - betas_t * state.apply_fn({'params': params}, x, time=t) / sqrt_one_minus_alphas_cumprod_t
         )
+
+        print('after model apply')
 
         if t_index == 0:
             return model_mean
@@ -134,21 +137,21 @@ class Diffuser:
             return model_mean + jnp.sqrt(posterior_variance_t) * noise 
     
     # @partial(jax.jit, static_argnums=(3,))
-    def p_sample_loop(self, key, params, shape):
+    def p_sample_loop(self, key, state, shape):
 
-        params = jax.lax.stop_gradient(params)
+        params = jax.lax.stop_gradient(state.params)
 
         n, b = shape[0], shape[1]
         key, noise_key = random.split(key)
         img = random.normal(noise_key, shape)
 
         def _sample_fn(key, params, x, t, t_index):
-            return self.p_sample(key, params, x, t, t_index)
+            return self.p_sample(key, state, params, x, t, t_index)
 
         pp_sample=jax.pmap(
             _sample_fn,
             axis_name='batch',
-            static_broadcasted_argnums=(4,)
+            static_broadcasted_argnums=(-1,)
         )
 
         print('Sample Shape: ', shape)
