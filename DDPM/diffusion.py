@@ -169,7 +169,8 @@ class Diffuser:
             # going in reverse
             t_index = 1000 - t_index - 1
             rng = sample_keys[t_index]
-            t = jnp.full((b,), t_index, dtype=jnp.int32)
+            rng = jax_utils.replicate(rng)
+            t = jnp.full((n,b,), t_index, dtype=jnp.int32)
             img = pp_sample(rng, state, params, img, t, t_index)
             
             return img
