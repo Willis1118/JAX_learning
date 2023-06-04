@@ -170,7 +170,8 @@ class Diffuser:
             t_index = 1000 - t_index - 1
             rng = [sample_keys[t_index]] * n
             t = jnp.full((n,b,), t_index, dtype=jnp.int32)
-            img = pp_sample(rng, params, img, t, [t_index] * n)
+            index = jnp.full((n,), t_index, dtype=jnp.int32)
+            img = pp_sample(rng, params, img, t, index)
             
             return img
 
