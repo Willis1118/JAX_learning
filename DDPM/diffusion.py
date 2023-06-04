@@ -68,6 +68,15 @@ class Diffuser:
         out = jnp.take_along_axis(a, t, axis=-1)
         return jnp.array(jnp.reshape(out, (batch, *((1,) * (len(x_shape) - 1)))))
     
+    @staticmethod
+    def all_gather(x, dereplicate=True, axis_name="_all_gather_batch", **all_gather_kwargs):
+        assert x.shape[0] == jax.local_device_count(), f"Expected first dimension to be the number of local devices, got {x.shape[0]} != {jax.local_device_count()}"
+        all_gather_fn = lambda x: jax.lax.all_gather(x, axis_name=axis_name, **all_gather_kwargs)
+        all_gathered = jax.pmap(all_gather_fn, axis_name=axis_name)(x)
+        if dereplicate:
+            all_gathered = all_gathered[0]
+        return all_gathered
+    
     # @partial(jax.jit, static_argnums=(4,))
     def q_sample(self, key, x_start, t, noise=None):
         '''
@@ -154,16 +163,30 @@ class Diffuser:
 
         imgs = []
 
-        for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
+        sample_keys = random.split(key, num=1000)
+
+        def sample_loop_fn(t_index, img):
+            # going in reverse
+            t_index = 1000 - t_index - 1
+            rng = sample_keys[t_index]
+            t = jnp.full((b,), t_index, dtype=jnp.int32)
+            img = pp_sample(rng, state, params, img, t, t_index)
             
-            key, sample_key = random.split(key)
-            sample_key = jax_utils.replicate(sample_key)
+            return img
 
-            img = pp_sample(sample_key, params, img, jnp.full((n,b,), i, dtype=jnp.int32), i)
 
-            imgs.append(jax.device_get(img))
+        # for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
+            
+        #     key, sample_key = random.split(key)
+        #     sample_key = jax_utils.replicate(sample_key)
+
+        #     img = pp_sample(sample_key, params, img, jnp.full((n,b,), i, dtype=jnp.int32), i)
+
+        #     imgs.append(jax.device_get(img))
+
+        img = jax.lax.fori_loop(0, 1000, sample_loop_fn, img)
         
-        return imgs
+        return jax.device_get(img)
     
     # @partial(jax.jit, static_argnums=(3,4,5))
     def sample(self, key, model, params, image_size, batch_size=16, channels=3):
