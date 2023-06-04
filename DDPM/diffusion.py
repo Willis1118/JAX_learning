@@ -69,14 +69,13 @@ class Diffuser:
         return jnp.array(jnp.reshape(out, (batch, *((1,) * (len(x_shape) - 1)))))
     
     @staticmethod
-    def all_gather(x, dereplicate=True, axis_name="_all_gather_batch", **all_gather_kwargs):
-        assert x.shape[0] == jax.local_device_count(), f"Expected first dimension to be the number of local devices, got {x.shape[0]} != {jax.local_device_count()}"
-        all_gather_fn = lambda x: jax.lax.all_gather(x, axis_name=axis_name, **all_gather_kwargs)
-        all_gathered = jax.pmap(all_gather_fn, axis_name=axis_name)(x)
-        if dereplicate:
-            all_gathered = all_gathered[0]
-        return all_gathered
-    
+    def indicator(t):
+        '''
+            indicator function for t = 0
+        '''
+
+        return jnp.ceil((1/(1+jnp.exp(-t)) - 0.5))
+
     # @partial(jax.jit, static_argnums=(4,))
     def q_sample(self, key, x_start, t, noise=None):
         '''
@@ -132,12 +131,11 @@ class Diffuser:
         model_mean = sqrt_recip_alphas_t * (
             x - betas_t * state.apply_fn({'params': params}, x, time=t) / sqrt_one_minus_alphas_cumprod_t
         )
-
         
         posterior_variance_t = self.extract(self.posterior_variance, t, x.shape)
         noise = random.normal(key, x.shape)
         # Algorithm 2 line 4:
-        return model_mean + jnp.sqrt(posterior_variance_t) * noise 
+        return model_mean + jnp.sqrt(posterior_variance_t) * noise * self.indicator(t)
     
     # @partial(jax.jit, static_argnums=(3,))
     def p_sample_loop(self, key, state, shape):
@@ -184,8 +182,9 @@ class Diffuser:
         #     imgs.append(jax.device_get(img))
 
         img = jax.lax.fori_loop(0, 1000, sample_loop_fn, img)
+
         
-        return jax.device_get(img)
+        return img
     
     # @partial(jax.jit, static_argnums=(3,4,5))
     def sample(self, key, model, params, image_size, batch_size=16, channels=3):

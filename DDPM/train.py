@@ -191,6 +191,15 @@ def create_train_state(
 
     return state
 
+
+def all_gather(x, dereplicate=True, axis_name="_all_gather_batch", **all_gather_kwargs):
+    assert x.shape[0] == jax.local_device_count(), f"Expected first dimension to be the number of local devices, got {x.shape[0]} != {jax.local_device_count()}"
+    all_gather_fn = lambda x: jax.lax.all_gather(x, axis_name=axis_name, **all_gather_kwargs)
+    all_gathered = jax.pmap(all_gather_fn, axis_name=axis_name)(x)
+    if dereplicate:
+        all_gathered = all_gathered[0]
+    return all_gathered
+
 def main():
     n_devices = jax.local_device_count()
     config = ml_collections.ConfigDict()
@@ -202,7 +211,7 @@ def main():
     config.momentum = 0
     config.dim = 128
     config.warmup_epochs = 20
-    config.num_epochs = 200
+    config.num_epochs = 500
 
     base_learning_rate = 0.001 * config.batch_size / 256
 
@@ -243,7 +252,7 @@ def main():
 
     train_steps = 0
     log_every = 100
-    sample_every = 1
+    sample_every = 2000
     loss = 0
 
     for epoch in range(config.num_epochs):
@@ -267,7 +276,9 @@ def main():
                 
                 imgs = Diffuser().p_sample_loop(key=sample_key, state=state, shape=(4,4,32,32,3))
 
-                print('Sampling Done ', imgs)
+                imgs = all_gather(imgs, tiled=True)
+
+                print('Sampling Done. Image Shape: ', imgs.shape)
             
             loss = 0
 
