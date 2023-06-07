@@ -165,9 +165,13 @@ class Diffuser:
         return img
     
     # @partial(jax.jit, static_argnums=(3,4,5))
-    def sample(self, key, model, params, image_size, batch_size=16, channels=3):
-        shape = (batch_size, image_size, image_size, channels)
-        return self.p_sample_loop(key, model, params, shape)
+    def get_sample_fn(self, key, shape):
+
+        def _sample(state):
+            imgs = self.p_sample_loop(key, state, shape)
+            return imgs
+        
+        return _sample
 
 
     

@@ -252,18 +252,21 @@ def main():
         axis_name='batch'
     )
 
-    wandb_configs = {
-        "model": 'UNet',
-        "epochs": config.num_epochs,
-        "batch_size": config.batch_size,
-        "cores": n_devices
-    }
-    initialize_wandb(wandb_configs, exp_name="")
+    use_wandb = False
+
+    if use_wandb:
+        wandb_configs = {
+            "model": 'UNet',
+            "epochs": config.num_epochs,
+            "batch_size": config.batch_size,
+            "cores": n_devices
+        }
+        initialize_wandb(wandb_configs, exp_name="")
 
     train_steps = 0
     log_steps = 0
     log_every = 100
-    sample_every = 10_000
+    sample_every = 100
     loss = 0
     start_time = time()
 
@@ -286,7 +289,8 @@ def main():
 
                 print(f'Steps: {train_steps}, Loss: {loss / log_every}')
 
-                log_loss_dict({"Average Loss": loss / log_every, "Steps / Sec": steps_per_sec}, train_steps)
+                if use_wandb:
+                    log_loss_dict({"Average Loss": loss / log_every, "Steps / Sec": steps_per_sec}, train_steps)
 
                 log_steps = 0
                 start_time = time()
@@ -296,13 +300,16 @@ def main():
 
                 print('Sampling Begin')
                 
-                imgs = Diffuser().p_sample_loop(key=sample_key, state=state, shape=(4,4,32,32,3))
+                fn = Diffuser().get_sample_fn(key=sample_key, shape=(4,4,32,32,3))
+                fn = jax.pmap(fn, axis_name='batch')
+                imgs = fn(state)
                 imgs = all_gather(imgs, tiled=True)
                 imgs = torch.tensor(jax.device_get(imgs)).permute([0, 3, 1, 2])
 
                 print('Sampling Done. Image Shape: ', imgs.shape)
 
-                log_images(imgs, 'UNet', train_steps)
+                if use_wandb:
+                    log_images(imgs, 'UNet', train_steps)
     
     ## wait until all computation on XLA side is done
     jax.random.normal(jax.random.PRNGKey(0), ()).block_until_ready()
