@@ -302,7 +302,7 @@ def main():
                 
                 fn = Diffuser().get_sample_fn(key=sample_key, shape=(4,32,32,3))
                 fn = jax.pmap(fn, axis_name='batch')
-                imgs = fn(state)
+                imgs = fn(state).block_until_ready()
                 imgs = all_gather(imgs, tiled=True)
                 imgs = torch.tensor(jax.device_get(imgs)).permute([0, 3, 1, 2])
 
