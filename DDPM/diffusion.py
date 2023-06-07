@@ -16,7 +16,7 @@ import functools
 from model import UNet
 
 class VarScheduler:
-    def __init__(self, timesteps=1000):
+    def __init__(self, timesteps):
         self.time = timesteps
     
     def cos_beta(self, s=0.008):
@@ -142,17 +142,9 @@ class Diffuser:
 
         params = jax.lax.stop_gradient(state.params)
 
-        n, b = shape[0], shape[1]
+        b = shape[0]
         key, noise_key = random.split(key)
         img = random.normal(noise_key, shape)
-
-        def _sample_fn(key, params, x, t, t_index):
-            return self.p_sample(key, state, params, x, t, t_index)
-
-        pp_sample=jax.pmap(
-            _sample_fn,
-            axis_name='batch',
-        )
 
         imgs = []
 
@@ -161,22 +153,11 @@ class Diffuser:
         def sample_loop_fn(t_index, img):
             # going in reverse
             t_index = 1000 - t_index - 1
-            rng = jnp.array([sample_keys[t_index]] * n)
-            t = jnp.full((n,b,), t_index, dtype=jnp.int32)
-            index = jnp.full((n,), t_index, dtype=jnp.int32)
-            img = pp_sample(rng, params, img, t, index)
+            rng = sample_keys[t_index]
+            t = jnp.full((b,), t_index, dtype=jnp.int32)
+            img = self.p_sample(rng, state, params, img, t, t_index)
             
             return img
-
-
-        # for i in tqdm(reversed(range(0, self.time)), desc='sampling loop time step', total=self.time):
-            
-        #     key, sample_key = random.split(key)
-        #     sample_key = jax_utils.replicate(sample_key)
-
-        #     img = pp_sample(sample_key, params, img, jnp.full((n,b,), i, dtype=jnp.int32), i)
-
-        #     imgs.append(jax.device_get(img))
 
         img = jax.lax.fori_loop(0, 1000, sample_loop_fn, img)
 
