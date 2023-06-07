@@ -4,7 +4,7 @@ def initialize_wandb(args, exp_name):
     wandb.login()
 
     wandb.init(
-        project="flow_DiT",
+        project="DDPM",
         name=exp_name
     )
     wandb.config.update(args)
