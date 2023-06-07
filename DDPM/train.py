@@ -300,7 +300,7 @@ def main():
 
                 print('Sampling Begin')
                 
-                fn = Diffuser().get_sample_fn(key=sample_key, shape=(4,4,32,32,3))
+                fn = Diffuser().get_sample_fn(key=sample_key, shape=(4,32,32,3))
                 fn = jax.pmap(fn, axis_name='batch')
                 imgs = fn(state)
                 imgs = all_gather(imgs, tiled=True)
