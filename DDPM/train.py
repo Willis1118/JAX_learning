@@ -252,7 +252,7 @@ def main():
         axis_name='batch'
     )
 
-    use_wandb = False
+    use_wandb = True
 
     if use_wandb:
         wandb_configs = {
