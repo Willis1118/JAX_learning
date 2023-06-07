@@ -298,6 +298,7 @@ def main():
                 
                 imgs = Diffuser().p_sample_loop(key=sample_key, state=state, shape=(4,4,32,32,3))
                 imgs = all_gather(imgs, tiled=True)
+                imgs = jax.device_get(imgs)
 
                 print('Sampling Done. Image Shape: ', imgs.shape)
 

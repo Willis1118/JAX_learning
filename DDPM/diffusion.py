@@ -152,10 +152,7 @@ class Diffuser:
         pp_sample=jax.pmap(
             _sample_fn,
             axis_name='batch',
-            static_broadcasted_argnums=(4,)
         )
-
-        print('Sample Shape: ', shape, n)
 
         imgs = []
 
