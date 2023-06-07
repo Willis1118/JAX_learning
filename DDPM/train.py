@@ -21,6 +21,7 @@ from jax import random
 import ml_collections
 import optax
 import numpy as np
+from time import time
 
 import torch
 from torch.utils.data import DataLoader
@@ -32,6 +33,7 @@ from torchloader_util import build_transform
 from model import UNet
 from torch2jax import parse_batch
 from diffusion import Diffuser
+from wandb_utils import initialize_wandb, log_images, log_loss_dict
 
 TIME_STEPS=1000
 
@@ -250,10 +252,20 @@ def main():
         axis_name='batch'
     )
 
+    wandb_configs = {
+        "model": 'UNet',
+        "epochs": config.num_epochs,
+        "batch_size": config.batch_size,
+        "cores": n_devices
+    }
+    initialize_wandb(wandb_configs, exp_name="")
+
     train_steps = 0
+    log_steps = 0
     log_every = 100
     sample_every = 2000
     loss = 0
+    start_time = time()
 
     for epoch in range(config.num_epochs):
         print(f'Begin Trainning on epoch{epoch}')
@@ -265,24 +277,31 @@ def main():
 
             train_steps += 1
             loss += metrics[0]
+            log_steps += 1
 
             if train_steps % log_every == 0 and train_steps > 0:
 
+                end_time = time()
+                steps_per_sec = log_every / (end_time - start_time)
+
                 print(f'Steps: {train_steps}, Loss: {loss / log_every}')
+
+                log_loss_dict({"Average Loss": loss / log_every, "Steps / Sec": steps_per_sec}, train_steps)
+
+                log_steps = 0
+                start_time = time()
+                loss = 0
             
             if train_steps % sample_every == 0 and train_steps > 0:
 
                 print('Sampling Begin')
                 
                 imgs = Diffuser().p_sample_loop(key=sample_key, state=state, shape=(4,4,32,32,3))
-
                 imgs = all_gather(imgs, tiled=True)
 
                 print('Sampling Done. Image Shape: ', imgs.shape)
-            
-            loss = 0
 
-
+                log_images(imgs, 'UNet', train_steps)
     
     ## wait until all computation on XLA side is done
     jax.random.normal(jax.random.PRNGKey(0), ()).block_until_ready()
