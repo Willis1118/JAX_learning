@@ -270,6 +270,11 @@ def main():
     loss = 0
     start_time = time()
 
+
+    ## the sampling function
+    fn = Diffuser().get_sample_fn(key=sample_key, shape=(4,32,32,3))
+    fn = jax.pmap(fn, axis_name='batch')
+
     for epoch in range(config.num_epochs):
         print(f'Begin Trainning on epoch{epoch}')
         for batch in train_loader:
@@ -300,8 +305,6 @@ def main():
 
                 print('Sampling Begin')
                 
-                fn = Diffuser().get_sample_fn(key=sample_key, shape=(4,32,32,3))
-                fn = jax.pmap(fn, axis_name='batch')
                 imgs = fn(state).block_until_ready()
                 imgs = all_gather(imgs, tiled=True)
                 imgs = torch.tensor(jax.device_get(imgs)).permute([0, 3, 1, 2])
