@@ -298,8 +298,7 @@ def main():
                 
                 imgs = Diffuser().p_sample_loop(key=sample_key, state=state, shape=(4,4,32,32,3))
                 imgs = all_gather(imgs, tiled=True)
-                imgs = jax.device_get(imgs)
-                imgs = imgs.permute([0, 3, 1, 2]) #nhwc -> nchw
+                imgs = torch.tensor(jax.device_get(imgs)).permute([0, 3, 1, 2])
 
                 print('Sampling Done. Image Shape: ', imgs.shape)
 
