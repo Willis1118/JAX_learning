@@ -266,7 +266,7 @@ def main():
     train_steps = 0
     log_steps = 0
     log_every = 100
-    sample_every = 100
+    sample_every = 50_000
     loss = 0
     start_time = time()
 
